@@ -36,7 +36,7 @@ void main() {
   });
 
   test('capability registry does not claim planned integrations are ready', () {
-    expect(capabilityById('translation')!.state, CapabilityState.planned);
+    expect(capabilityById('translation')!.state, CapabilityState.partial);
     expect(capabilityById('whisper_transcription')!.state, CapabilityState.planned);
     expect(capabilityById('smart_blur_masks')!.state, CapabilityState.planned);
     expect(capabilityById('speech_synthesis')!.state, CapabilityState.partial);
