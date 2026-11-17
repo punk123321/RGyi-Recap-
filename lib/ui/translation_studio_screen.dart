@@ -4,23 +4,73 @@ import '../core/theme.dart';
 import '../data/project.dart';
 import 'gemini_panel.dart';
 
-/// Translation workspace built on the existing, resumable Gemini handoff.
-/// Source SRT is retained; translated output is merged using source timings.
-class TranslationStudioScreen extends StatelessWidget {
+enum _TranslationMode { recap, fullSrt }
+
+/// Translation workspace with two separate workflows:
+/// recap narration and line-preserving full SRT translation.
+class TranslationStudioScreen extends StatefulWidget {
   const TranslationStudioScreen({super.key, required this.project});
 
   final Project project;
 
   @override
+  State<TranslationStudioScreen> createState() => _TranslationStudioScreenState();
+}
+
+class _TranslationStudioScreenState extends State<TranslationStudioScreen> {
+  _TranslationMode _mode = _TranslationMode.fullSrt;
+
+  static const _recapKeys = <String>[
+    'zh_recap',
+    'recap_short',
+    'recap_medium',
+    'recap_long',
+    'narration',
+    'yt_script',
+  ];
+
+  static const _srtKeys = <String>['zh_my', 'ts_translate'];
+
+  @override
   Widget build(BuildContext context) {
+    final isRecap = _mode == _TranslationMode.recap;
+    final keys = isRecap ? _recapKeys : _srtKeys;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Translation Studio'),
-      ),
+      appBar: AppBar(title: const Text('Translation Studio')),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
+            const Text(
+              'ဘာသာပြန်လုပ်ငန်းအမျိုးအစား ရွေးပါ',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: _ModeCard(
+                    selected: isRecap,
+                    icon: Icons.auto_stories_rounded,
+                    title: 'Recap Translation',
+                    subtitle: 'ဇာတ်လမ်းပြန်ပြောစာ',
+                    onTap: () => setState(() => _mode = _TranslationMode.recap),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _ModeCard(
+                    selected: !isRecap,
+                    icon: Icons.subtitles_rounded,
+                    title: 'Full SRT Translation',
+                    subtitle: 'စာတန်းအားလုံး အချိန်မပျက်',
+                    onTap: () => setState(() => _mode = _TranslationMode.fullSrt),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -28,32 +78,86 @@ class TranslationStudioScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: DfColors.accent.withValues(alpha: 0.28)),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('ဘာသာပြန်လုပ်ငန်း', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                  SizedBox(height: 6),
                   Text(
-                    'Source SRT ကို မပြောင်းဘဲ အပိုင်းငယ်ခွဲပြီး Gemini app မှာ ဘာသာပြန်နိုင်ပါတယ်။ '
-                    'ပြန်ရလာတဲ့ SRT ကို စစ်ဆေးပြီး နံပါတ်နဲ့ အချိန်တွေကို မူရင်းအတိုင်း ပြန်ပေါင်းပေးမယ်။',
-                    style: TextStyle(fontSize: 13),
+                    isRecap ? 'Recap Translation' : 'Full SRT Translation',
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Text(
-                    'လက်ရှိနည်းလမ်း — Gemini app သို့ ကိုယ်တိုင်ပို့/ပြန်ထည့်ခြင်း။ '
-                    'API အလိုအလျောက်ဘာသာပြန်ကို မချိတ်ရသေးပါ။',
+                    isRecap
+                        ? 'တရုတ်စာတန်း သို့မဟုတ် ဇာတ်လမ်းစကားပြောတွေကို မြန်မာလို သဘာဝကျတဲ့ Recap ပြောပြစာအဖြစ် ပြောင်းပါ။ အတို၊ အလတ်၊ အရှည်နဲ့ အသံဖတ် Script ပုံစံတွေ ရွေးနိုင်ပါတယ်။'
+                        : 'မူရင်း SRT ရဲ့ နံပါတ်၊ အချိန်နဲ့ စာကြောင်းအစီအစဉ်ကို မပြောင်းဘဲ တစ်ကြောင်းချင်း မြန်မာလို ဘာသာပြန်ပါ။',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'လက်ရှိနည်းလမ်း — Gemini app သို့ ကိုယ်တိုင်ပို့ပြီး ပြန်ထည့်ခြင်း။ API အလိုအလျောက်ဘာသာပြန်ကို မချိတ်ရသေးပါ။',
                     style: TextStyle(color: DfColors.muted, fontSize: 12),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             GeminiPanel(
-              project: project,
-              onlyKeys: const ['zh_my', 'ts_translate'],
-              initialKey: 'zh_my',
+              key: ValueKey('translation-${_mode.name}-${widget.project.id}'),
+              project: widget.project,
+              onlyKeys: keys,
+              initialKey: isRecap ? 'zh_recap' : 'zh_my',
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ModeCard extends StatelessWidget {
+  const _ModeCard({
+    required this.selected,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final bool selected;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? DfColors.accent : DfColors.muted;
+    return Material(
+      color: selected ? DfColors.accent.withValues(alpha: 0.12) : DfColors.panel,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 112),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected ? DfColors.accent : DfColors.border,
+              width: selected ? 1.6 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: color, size: 23),
+              const SizedBox(height: 9),
+              Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: selected ? DfColors.accent : null)),
+              const SizedBox(height: 3),
+              Text(subtitle, style: const TextStyle(fontSize: 11, color: DfColors.muted)),
+            ],
+          ),
         ),
       ),
     );
