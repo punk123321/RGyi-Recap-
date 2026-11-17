@@ -25,7 +25,7 @@ class AudioFile {
 /// Android text-to-speech, microphone, playback and audio import (see
 /// native/MainActivity.kt). No internet and no API are involved here.
 class AudioChannel {
-  static const _channel = MethodChannel('com.dramaflow.aistudio/media');
+  static const _channel = MethodChannel('com.rgyi.recap/media');
   static final _ended = StreamController<void>.broadcast();
   static bool _wired = false;
 
