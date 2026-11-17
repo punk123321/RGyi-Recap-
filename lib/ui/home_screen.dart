@@ -17,9 +17,10 @@ import 'video_recap_screen.dart';
 import 'srt_split_screen.dart';
 import 'publish_screen.dart';
 import 'transformative_editor_screen.dart';
+import 'translation_studio_screen.dart';
 import 'widgets.dart';
 
-enum _Action { none, workflow, library, studio, fairUse, transformative, publish, backup, quick, srtSplit, videoRecap, news }
+enum _Action { none, workflow, library, studio, fairUse, transformative, publish, backup, quick, srtSplit, videoRecap, news, translation }
 
 class _Module {
   const _Module(this.code, this.title, this.sub, this.color, this.phase, [this.action = _Action.none, this.capabilityId]);
@@ -72,7 +73,7 @@ const _modules = <_Module>[
   _Module('NW', 'သတင်း (RSS)', 'သတင်းဖတ်၊ script ရေး', Color(0xFF2FA8FF), 14, _Action.news),
   _Module('BK', 'Backup / Restore', 'Project သိမ်း/ပြန်ယူ', Color(0xFF8E9AAF), 12, _Action.backup),
   _Module('UP', 'Upload & Thumbnail', 'ခေါင်းစဉ်၊ hashtag၊ ပုံ', Color(0xFFFF6B9D), 11, _Action.publish),
-  _Module('TR', 'Translation Studio', 'Recap / Full Translation', Color(0xFF35B6A5), 4, _Action.none, 'translation'),
+  _Module('TR', 'Translation Studio', 'Recap / Full Translation', Color(0xFF35B6A5), 4, _Action.translation, 'translation'),
   _Module('WH', 'Whisper Subtitles', 'အသံမှ SRT အလိုအလျောက်ထုတ်', Color(0xFF62A0EA), 5, _Action.none, 'whisper_transcription'),
   _Module('BM', 'Smart Blur Masks', 'နေရာသတ်မှတ်ပြီး Blur ဖုံး', Color(0xFFB17CE8), 6, _Action.none, 'smart_blur_masks'),
 ];
@@ -366,6 +367,8 @@ class _ModuleTile extends StatelessWidget {
         onOpenWorkflow();
       case _Action.studio:
         _push(context, SubtitleStudioScreen(project: target));
+      case _Action.translation:
+        _push(context, TranslationStudioScreen(project: target));
       case _Action.fairUse:
         _push(context, FairUseScreen(project: target));
       case _Action.transformative:
