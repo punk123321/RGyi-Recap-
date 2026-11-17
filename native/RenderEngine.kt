@@ -1,4 +1,4 @@
-package com.dramaflow.aistudio
+package com.rgyi.recap
 
 import android.app.Activity
 import android.content.ContentValues
