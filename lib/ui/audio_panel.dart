@@ -261,6 +261,18 @@ class _AudioPanelState extends State<AudioPanel> {
     if (mounted) setState(() => _busy = null);
   }
 
+  Future<void> _stopVoicePreview() async {
+    final path = _previewPath;
+    _previewPath = null;
+    try {
+      await AudioChannel.stop();
+    } catch (_) {}
+    if (path != null) {
+      try { await AudioChannel.deleteFile(path); } catch (_) {}
+    }
+    if (mounted) setState(() {});
+  }
+
   Future<void> _previewGeminiVoice() async {
     if (!_ai.ready || _previewingVoice) return;
     setState(() {
@@ -379,13 +391,13 @@ class _AudioPanelState extends State<AudioPanel> {
         Align(
           alignment: Alignment.centerLeft,
           child: OutlinedButton.icon(
-            onPressed: (!_ai.ready || _previewingVoice || _busy != null || _batchRunning)
+            onPressed: _previewingVoice
                 ? null
-                : _previewGeminiVoice,
+                : (_previewPath != null ? _stopVoicePreview : (!_ai.ready || _busy != null || _batchRunning ? null : _previewGeminiVoice)),
             icon: _previewingVoice
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.play_circle_outline, size: 18),
-            label: const Text('ရွေးထားတဲ့အသံကို စမ်းနားထောင်'),
+                : Icon(_previewPath != null ? Icons.stop_circle_outlined : Icons.play_circle_outline, size: 18),
+            label: Text(_previewingVoice ? 'အသံ ဖန်တီးနေသည်…' : (_previewPath != null ? 'စမ်းနားထောင်တာ ရပ်မယ်' : 'ရွေးထားတဲ့အသံကို စမ်းနားထောင်')),
           ),
         ),
         const SizedBox(height: 8),
@@ -518,7 +530,7 @@ class _AudioPanelState extends State<AudioPanel> {
     final chunks = _chunks;
     final haveClips = chunks.indexed.where((e) => _clipOf(e.$1) != null).length;
     final totalMs = [for (var i = 0; i < chunks.length; i++) _clipOf(i)?.durationMs ?? 0].fold<int>(0, (a, b) => a + b);
-    final busyAny = _busy != null || _recording != null || _batchRunning;
+    final busyAny = _busy != null || _recording != null || _batchRunning || _previewingVoice || _previewPath != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -667,7 +679,7 @@ class _AudioPanelState extends State<AudioPanel> {
     final clip = _clipOf(i);
     final recordingThis = _recording == i;
     final busyThis = _busy == i;
-    final otherBusy = (_busy != null && _busy != i) || (_recording != null && _recording != i);
+    final otherBusy = _previewingVoice || _previewPath != null || (_busy != null && _busy != i) || (_recording != null && _recording != i);
     final canTts = _tts?.burmese == true && text.isNotEmpty;
 
     return Container(
