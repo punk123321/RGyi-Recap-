@@ -133,7 +133,7 @@ class _ModeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = selected ? DfColors.accent : DfColors.muted;
     return Material(
-      color: selected ? DfColors.accent.withValues(alpha: 0.12) : DfColors.panel,
+      color: selected ? DfColors.accent.withValues(alpha: 0.12) : DfColors.surface,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
@@ -144,7 +144,7 @@ class _ModeCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: selected ? DfColors.accent : DfColors.border,
+              color: selected ? DfColors.accent : DfColors.line,
               width: selected ? 1.6 : 1,
             ),
           ),
