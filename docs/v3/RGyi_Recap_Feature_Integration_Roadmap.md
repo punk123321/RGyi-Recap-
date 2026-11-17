@@ -56,9 +56,15 @@ Next: unified provider catalogue, voice audition, per-chunk controls, batch prog
 Acceptance: one chunk can be regenerated without overwriting others; offline/manual paths remain usable without an API key; provider failures are recoverable.
 
 ### B. Translation Studio
+Implemented in RGyi Recap:
+- Dedicated Translation Studio entry point.
+- Separate Recap Translation and Full SRT Translation mode cards.
+- Recap mode exposes existing recap/narration prompt templates; Full SRT mode exposes the Chinese-to-Burmese SRT templates.
+- Both modes reuse the existing resumable Gemini app handoff and chunk result storage.
+- The manual handoff is explicitly labelled; direct automatic translation API is not connected.
+
 Next:
-- Recap Translation: adapt narration while preserving storytelling tone.
-- Full Translation: translate every subtitle cue while preserving cue order and timestamps.
+- Per-project glossary and character-name memory.
 - Per-project glossary and character-name memory.
 - Chunked translation, retry/progress and side-by-side review.
 - Save translated output separately; never silently rewrite source SRT.
@@ -107,12 +113,14 @@ Free Mode must keep every existing stage manually accessible. Guided Mode recomm
 - [x] Add capability registry and contract regression tests.
 - [x] Wire capability states into Home Studio module cards and show honest availability labels.
 - [ ] Add real provider adapters only after provider/runtime selection and tests.
+- [x] Add dedicated Translation Studio route with distinct Recap and Full SRT mode selection.
+- [x] Reuse existing chunked Gemini handoff and per-project result persistence for both modes.
 
 ### Phase 3 — Voice Studio upgrade
 Voice catalogue, preview, per-chunk settings, batch queue, retry/resume and quality controls.
 
 ### Phase 4 — Translation Studio
-Recap and Full Translation, glossary, side-by-side review and separate source/target documents.
+**In progress:** separate Recap and Full SRT modes are wired to the existing handoff. Remaining: direct provider integration, glossary, side-by-side review and stronger separate source/target document management.
 
 ### Phase 5 — Whisper Transcription
 Benchmark local models first; then audio extraction, transcription queue and SRT handoff. Remote transcription remains optional.
