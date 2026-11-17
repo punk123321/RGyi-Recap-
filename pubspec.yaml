@@ -1,0 +1,33 @@
+name: aistudio
+description: RGyi Recap - AI-assisted movie recap and video production studio.
+publish_to: "none"
+version: 1.1.0+9
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path: ^1.9.0
+  path_provider: ^2.1.4
+  provider: ^6.1.2
+  sqflite: ^2.3.3
+  video_player: ^2.9.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  sqflite_common_ffi: ^2.3.3
+
+flutter:
+  uses-material-design: true
+  # Burmese font (optional, recommended). Put the .ttf in assets/fonts/ and
+  # uncomment. Without it the app uses the phone's own Myanmar font.
+  # fonts:
+  #   - family: Noto Sans Myanmar
+  #     fonts:
+  #       - asset: assets/fonts/NotoSansMyanmar-Regular.ttf
+  #       - asset: assets/fonts/NotoSansMyanmar-Bold.ttf
+  #         weight: 700
