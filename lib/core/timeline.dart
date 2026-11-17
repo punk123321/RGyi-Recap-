@@ -82,6 +82,52 @@ class LookAdjust {
   int get hashCode => Object.hash(brightness, contrast);
 }
 
+/// A blur region on the OUTPUT timeline. Coordinates and size are normalized
+/// to the rendered frame (0..1), so the same edit works in portrait and landscape.
+class BlurMask {
+  const BlurMask({required this.startMs, required this.endMs, this.x = 0.25, this.y = 0.25, this.width = 0.3, this.height = 0.2, this.strength = 18});
+
+  final int startMs;
+  final int endMs;
+  final double x;
+  final double y;
+  final double width;
+  final double height;
+  final double strength;
+
+  BlurMask get fitted {
+    final s = startMs < 0 ? 0 : startMs;
+    final e = endMs <= s ? s + 1 : endMs;
+    final w = (width.isFinite ? width : 0.3).clamp(0.05, 1.0).toDouble();
+    final h = (height.isFinite ? height : 0.2).clamp(0.05, 1.0).toDouble();
+    final px = (x.isFinite ? x : 0.25).clamp(0.0, 1.0 - w).toDouble();
+    final py = (y.isFinite ? y : 0.25).clamp(0.0, 1.0 - h).toDouble();
+    final b = (strength.isFinite ? strength : 18).clamp(1.0, 40.0).toDouble();
+    return BlurMask(startMs: s, endMs: e, x: px, y: py, width: w, height: h, strength: b);
+  }
+
+  BlurMask copyWith({int? startMs, int? endMs, double? x, double? y, double? width, double? height, double? strength}) =>
+      BlurMask(startMs: startMs ?? this.startMs, endMs: endMs ?? this.endMs, x: x ?? this.x, y: y ?? this.y, width: width ?? this.width, height: height ?? this.height, strength: strength ?? this.strength).fitted;
+
+  Map<String, Object?> toJson() => {'s': startMs, 'e': endMs, 'x': x, 'y': y, 'w': width, 'h': height, 'b': strength};
+
+  static BlurMask fromJson(Map<String, Object?> m) => BlurMask(
+    startMs: (m['s'] as num?)?.toInt() ?? 0,
+    endMs: (m['e'] as num?)?.toInt() ?? 1,
+    x: (m['x'] as num?)?.toDouble() ?? 0.25,
+    y: (m['y'] as num?)?.toDouble() ?? 0.25,
+    width: (m['w'] as num?)?.toDouble() ?? 0.3,
+    height: (m['h'] as num?)?.toDouble() ?? 0.2,
+    strength: (m['b'] as num?)?.toDouble() ?? 18,
+  ).fitted;
+
+  @override
+  bool operator ==(Object other) => other is BlurMask && other.startMs == startMs && other.endMs == endMs && other.x == x && other.y == y && other.width == width && other.height == height && other.strength == strength;
+
+  @override
+  int get hashCode => Object.hash(startMs, endMs, x, y, width, height, strength);
+}
+
 class VideoPiece {
   const VideoPiece(this.startMs, this.endMs, [this.zoom = ZoomMode.none, this.crop, this.freeze = false, this.look]);
 
@@ -325,6 +371,7 @@ class Timeline {
     this.style = const SubStyle(),
     this.corners = const [],
     this.logo,
+    this.blurMasks = const [],
   });
 
   final List<VideoPiece> pieces;
@@ -342,6 +389,7 @@ class Timeline {
   final SubStyle style;
   final List<CornerText> corners;
   final LogoItem? logo;
+  final List<BlurMask> blurMasks;
 
   int get videoMs => pieces.fold(0, (a, p) => a + p.lengthMs);
 
@@ -359,6 +407,7 @@ class Timeline {
     List<CornerText>? corners,
     LogoItem? logo,
     bool clearLogo = false,
+    List<BlurMask>? blurMasks,
   }) =>
       Timeline(
         pieces: pieces ?? this.pieces,
@@ -370,6 +419,7 @@ class Timeline {
         style: style ?? this.style,
         corners: corners ?? this.corners,
         logo: clearLogo ? null : (logo ?? this.logo),
+        blurMasks: blurMasks ?? this.blurMasks,
       );
 
   String encode() => jsonEncode({
@@ -383,6 +433,7 @@ class Timeline {
         'style': style.toJson(),
         'corners': [for (final c in corners) c.toJson()],
         'logo': logo?.toJson(),
+        'blurMasks': [for (final m in blurMasks) m.toJson()],
       });
 
   /// Returns an empty timeline when [raw] is empty or damaged, so a broken
@@ -401,6 +452,7 @@ class Timeline {
         style: m['style'] == null ? const SubStyle() : SubStyle.fromJson((m['style'] as Map).cast()),
         corners: [for (final c in (m['corners'] as List? ?? const [])) CornerText.fromJson((c as Map).cast())],
         logo: m['logo'] == null ? null : LogoItem.fromJson((m['logo'] as Map).cast()),
+        blurMasks: [for (final b in (m['blurMasks'] as List? ?? const [])) BlurMask.fromJson((b as Map).cast())],
       );
     } catch (_) {
       return const Timeline();
