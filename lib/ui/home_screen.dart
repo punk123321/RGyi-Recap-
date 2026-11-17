@@ -80,7 +80,6 @@ const _modules = <_Module>[
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.onOpenWorkflow, required this.onOpenLibrary});
-
   final VoidCallback onOpenWorkflow;
   final VoidCallback onOpenLibrary;
 
@@ -88,137 +87,144 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = context.watch<ProjectStore>();
     final resume = store.resumeCandidate;
-
+    final width = MediaQuery.sizeOf(context).width;
+    final wide = width >= 900;
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const BrandMark(size: 34),
-            const SizedBox(width: 10),
-            Text.rich(
-              TextSpan(
-                children: [
-                  const TextSpan(text: 'RGyi ', style: TextStyle(fontWeight: FontWeight.w800)),
-                  TextSpan(text: 'Recap', style: TextStyle(color: DfColors.accent, fontWeight: FontWeight.w800)),
-                ],
-              ),
-              style: const TextStyle(fontSize: 21, letterSpacing: -0.5),
-            ),
-          ],
-        ),
+        toolbarHeight: 72,
+        titleSpacing: 20,
+        title: Row(mainAxisSize: MainAxisSize.min, children: [
+          const BrandMark(size: 38),
+          const SizedBox(width: 12),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('RGyi RECAP', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: 1.1)),
+            Text('AI PRODUCTION WORKSPACE', style: TextStyle(fontSize: 9, letterSpacing: 1.6, color: DfColors.secondary.withValues(alpha: .9))),
+          ]),
+        ]),
+        actions: [
+          if (wide) const Center(child: _LivePill()),
+          IconButton(tooltip: 'Project Library', onPressed: onOpenLibrary, icon: const Icon(Icons.video_library_outlined)),
+          const SizedBox(width: 10),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showNewProjectSheet(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Project အသစ်'),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New Project'),
       ),
       body: store.loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
+              padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 8, wide ? 28 : 16, 110),
               children: [
                 if (store.error != null) ErrorBanner(store.error!),
-                _HeroBanner(onCreate: () => showNewProjectSheet(context)),
-                if (resume != null)
-                  _ResumeCard(
-                    project: resume,
-                    onResume: () {
-                      store.open(resume);
-                      onOpenWorkflow();
-                    },
-                  )
-                else if (store.items.isEmpty)
+                _StudioHero(onCreate: () => showNewProjectSheet(context), onWorkflow: onOpenWorkflow),
+                const SizedBox(height: 18),
+                if (resume != null) ...[
+                  _SectionHeading(title: 'CONTINUE PRODUCTION', subtitle: 'နောက်ဆုံးလုပ်နေတဲ့ Project ကို ဆက်လုပ်ပါ'),
+                  _ResumeCard(project: resume, onResume: () { store.open(resume); onOpenWorkflow(); }),
+                  const SizedBox(height: 22),
+                ] else if (store.items.isEmpty) ...[
                   const _EmptyHint(),
-                const SectionTitle('Studio'),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final columns = constraints.maxWidth >= 1100
-                        ? 4
-                        : constraints.maxWidth >= 720
-                            ? 3
-                            : 2;
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _modules.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: columns,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        mainAxisExtent: 122,
-                      ),
-                      itemBuilder: (_, i) => _ModuleTile(
-                        module: _modules[i],
-                        onOpenWorkflow: onOpenWorkflow,
-                        onOpenLibrary: onOpenLibrary,
-                      ),
-                    );
-                  },
-                ),
+                  const SizedBox(height: 18),
+                ],
+                _SectionHeading(title: 'PRODUCTION TOOLS', subtitle: 'လုပ်ငန်းစဉ်အလိုက် ရွေးချယ်အသုံးပြုနိုင်ပါတယ်'),
+                LayoutBuilder(builder: (context, c) {
+                  final cols = c.maxWidth >= 1100 ? 4 : c.maxWidth >= 720 ? 3 : 2;
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _modules.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: cols, crossAxisSpacing: 12, mainAxisSpacing: 12,
+                      mainAxisExtent: 142,
+                    ),
+                    itemBuilder: (_, i) => _ModuleTile(
+                      module: _modules[i], onOpenWorkflow: onOpenWorkflow, onOpenLibrary: onOpenLibrary,
+                    ),
+                  );
+                }),
                 if (store.items.isNotEmpty) ...[
-                  const SectionTitle('Project များ'),
+                  const SizedBox(height: 24),
+                  _SectionHeading(title: 'YOUR PROJECTS', subtitle: '${store.items.length} projects in your workspace'),
                   for (final p in store.items) _ProjectTile(project: p, onOpenWorkflow: onOpenWorkflow),
                 ],
+                const SizedBox(height: 20),
+                const _FooterSignature(),
               ],
             ),
     );
   }
 }
 
-class _HeroBanner extends StatelessWidget {
-  const _HeroBanner({required this.onCreate});
-
-  final VoidCallback onCreate;
-
+class _LivePill extends StatelessWidget {
+  const _LivePill();
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14, top: 4),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF30205D), Color(0xFF182344), Color(0xFF102A3B)],
-        ),
-        border: Border.all(color: DfColors.accent.withValues(alpha: 0.38)),
-        boxShadow: [
-          BoxShadow(color: DfColors.accent.withValues(alpha: 0.12), blurRadius: 24, offset: const Offset(0, 8)),
-        ],
-      ),
-      child: Row(
-        children: [
-          const BrandMark(size: 54),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('YOUR CINEMATIC WORKSPACE', style: TextStyle(color: Color(0xFFB8C5E8), fontSize: 10, letterSpacing: 1.3, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 5),
-                const Text('ဇာတ်လမ်းတစ်ပုဒ်ကို Recap အဖြစ် ဖန်တီးလိုက်ပါ', maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)),
-                const SizedBox(height: 4),
-                const Text('Video · Subtitle · Voice · Production', style: TextStyle(color: Color(0xFFC5D2E8), fontSize: 11)),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: onCreate,
-                  icon: const Icon(Icons.add_rounded, size: 18),
-                  label: const Text('Project အသစ်စမယ်'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF9B7BFF),
-                    foregroundColor: Colors.white,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+    decoration: BoxDecoration(color: DfColors.ok.withValues(alpha: .10), borderRadius: BorderRadius.circular(30), border: Border.all(color: DfColors.ok.withValues(alpha: .3))),
+    child: const Row(children: [Icon(Icons.circle, size: 7, color: DfColors.ok), SizedBox(width: 7), Text('STUDIO READY', style: TextStyle(fontSize: 10, letterSpacing: 1, color: DfColors.ok, fontWeight: FontWeight.w800))]),
+  );
+}
+
+class _SectionHeading extends StatelessWidget {
+  const _SectionHeading({required this.title, required this.subtitle});
+  final String title;
+  final String subtitle;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(title, style: const TextStyle(fontSize: 12, letterSpacing: 1.5, fontWeight: FontWeight.w900, color: DfColors.secondary)),
+        const SizedBox(height: 4),
+        Text(subtitle, style: const TextStyle(fontSize: 12, color: DfColors.muted)),
+      ])),
+      Container(width: 34, height: 2, decoration: BoxDecoration(color: DfColors.accent, borderRadius: BorderRadius.circular(2))),
+    ]),
+  );
+}
+
+class _StudioHero extends StatelessWidget {
+  const _StudioHero({required this.onCreate, required this.onWorkflow});
+  final VoidCallback onCreate;
+  final VoidCallback onWorkflow;
+  @override
+  Widget build(BuildContext context) => Container(
+    constraints: const BoxConstraints(minHeight: 210),
+    padding: const EdgeInsets.all(22),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(26),
+      gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF28204F), Color(0xFF142C45), Color(0xFF101A2B)]),
+      border: Border.all(color: const Color(0xFF8B75FF).withValues(alpha: .42)),
+      boxShadow: [BoxShadow(color: const Color(0xFF6753D8).withValues(alpha: .16), blurRadius: 34, offset: const Offset(0, 14))],
+    ),
+    child: Stack(children: [
+      Positioned(right: -12, top: -24, child: Icon(Icons.movie_filter_rounded, size: 180, color: Colors.white.withValues(alpha: .045))),
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: DfColors.secondary.withValues(alpha: .12), borderRadius: BorderRadius.circular(30)), child: const Text('✦  AI-POWERED VIDEO STUDIO', style: TextStyle(color: DfColors.secondary, fontSize: 9, letterSpacing: 1.2, fontWeight: FontWeight.w900))),
+          const Spacer(),
+          const Icon(Icons.auto_awesome, color: Color(0xFFFFD78A), size: 20),
+        ]),
+        const SizedBox(height: 18),
+        const Text('Your Story.\nYour Cinematic Recap.', style: TextStyle(fontSize: 27, height: 1.12, fontWeight: FontWeight.w900, letterSpacing: -.7)),
+        const SizedBox(height: 8),
+        const Text('ဗီဒီယို၊ စာတန်းထိုး၊ အသံနဲ့ Editing ကို Workspace တစ်ခုထဲမှာ စီမံဖန်တီးပါ။', style: TextStyle(fontSize: 12, height: 1.5, color: Color(0xFFB9C6DD))),
+        const SizedBox(height: 18),
+        Wrap(spacing: 10, runSpacing: 8, children: [
+          FilledButton.icon(onPressed: onCreate, icon: const Icon(Icons.add_rounded, size: 18), label: const Text('Create Project'), style: FilledButton.styleFrom(backgroundColor: const Color(0xFF9B7BFF), foregroundColor: Colors.white)),
+          OutlinedButton.icon(onPressed: onWorkflow, icon: const Icon(Icons.account_tree_outlined, size: 17), label: const Text('Open Workspace'), style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: BorderSide(color: Colors.white.withValues(alpha: .25)))),
+        ]),
+      ]),
+    ]),
+  );
+}
+
+class _FooterSignature extends StatelessWidget {
+  const _FooterSignature();
+  @override
+  Widget build(BuildContext context) => const Center(child: Text('RGYI RECAP  •  CREATE WITHOUT LIMITS', style: TextStyle(color: DfColors.muted, fontSize: 9, letterSpacing: 2, fontWeight: FontWeight.w700)));
 }
 
 class _EmptyHint extends StatelessWidget {
@@ -397,56 +403,37 @@ class _ModuleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = module.color;
     final capability = capabilityById(module.capabilityId ?? '');
+    final available = capability?.state == CapabilityState.available || (capability == null && module.action != _Action.none);
     final status = capability == null
-        ? (module.action == _Action.none ? 'စီစဉ်ဆဲ · Phase ${module.phase}' : 'သုံးလို့ရ')
+        ? (module.action == _Action.none ? 'COMING SOON' : 'READY')
         : switch (capability.state) {
-            CapabilityState.available => 'သုံးလို့ရ',
-            CapabilityState.partial => 'တစ်စိတ်တစ်ပိုင်း',
-            CapabilityState.planned => 'စီစဉ်ဆဲ',
-            CapabilityState.unavailable => 'မရသေး',
+            CapabilityState.available => 'READY',
+            CapabilityState.partial => 'BETA',
+            CapabilityState.planned => 'PLANNED',
+            CapabilityState.unavailable => 'OFFLINE',
           };
-    final statusColor = capability?.state == CapabilityState.available ||
-            (capability == null && module.action != _Action.none)
-        ? DfColors.ok
-        : DfColors.muted;
     return Material(
       color: DfColors.surface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: c.withValues(alpha: 0.20)),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: c.withValues(alpha: .25))),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
         onTap: () => _tap(context),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 34,
-                    height: 34,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: c.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: c.withValues(alpha: 0.45)),
-                    ),
-                    child: Icon(_moduleIcon(module.code), color: c, size: 20),
-                  ),
-                  const Spacer(),
-                  Text(status, style: TextStyle(color: statusColor, fontSize: 11)),
-                ],
-              ),
+        child: Stack(children: [
+          Positioned(right: -15, bottom: -22, child: Icon(_moduleIcon(module.code), size: 104, color: c.withValues(alpha: .055))),
+          Padding(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Container(width: 42, height: 42, decoration: BoxDecoration(color: c.withValues(alpha: .14), borderRadius: BorderRadius.circular(13), border: Border.all(color: c.withValues(alpha: .42))), child: Icon(_moduleIcon(module.code), color: c, size: 23)),
               const Spacer(),
-              Text(module.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600)),
-              Text(module.sub, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: DfColors.muted, fontSize: 12)),
-            ],
-          ),
-        ),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4), decoration: BoxDecoration(color: (available ? DfColors.ok : DfColors.warn).withValues(alpha: .10), borderRadius: BorderRadius.circular(20)), child: Text(status, style: TextStyle(fontSize: 8, letterSpacing: .7, fontWeight: FontWeight.w900, color: available ? DfColors.ok : DfColors.warn))),
+            ]),
+            const Spacer(),
+            Text(module.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 3),
+            Text(module.sub, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: DfColors.muted, fontSize: 10)),
+            const SizedBox(height: 8),
+            Row(children: [Text('OPEN MODULE', style: TextStyle(color: c, fontSize: 8, letterSpacing: 1.1, fontWeight: FontWeight.w900)), const Spacer(), Icon(Icons.arrow_outward_rounded, size: 14, color: c)]),
+          ])),
+        ]),
       ),
     );
   }
