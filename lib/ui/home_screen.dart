@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
+import '../core/providers.dart';
 import '../core/stage.dart';
 import '../core/theme.dart';
 import '../data/project.dart';
@@ -21,13 +22,14 @@ import 'widgets.dart';
 enum _Action { none, workflow, library, studio, fairUse, transformative, publish, backup, quick, srtSplit, videoRecap, news }
 
 class _Module {
-  const _Module(this.code, this.title, this.sub, this.color, this.phase, [this.action = _Action.none]);
+  const _Module(this.code, this.title, this.sub, this.color, this.phase, [this.action = _Action.none, this.capabilityId]);
   final String code;
   final String title;
   final String sub;
   final Color color;
   final int phase;
   final _Action action;
+  final String? capabilityId;
 }
 
 IconData _moduleIcon(String code) {
@@ -58,7 +60,7 @@ const _modules = <_Module>[
   _Module('VI', 'Video Index', 'အပိုင်းခွဲ', Color(0xFFFF9F43), 2, _Action.workflow),
   _Module('GM', 'Recap Studio', 'Gemini handoff', Color(0xFF3DDC84), 3, _Action.workflow),
   _Module('ST', 'Subtitle Studio', 'SRT ပြင်၊ စစ်', Color(0xFF5B8CFF), 4, _Action.studio),
-  _Module('TT', 'TTS / MP3', 'အသံ ထုတ်/ဖမ်း', Color(0xFF5B8CFF), 5, _Action.workflow),
+  _Module('TT', 'TTS / MP3', 'အသံ ထုတ်/ဖမ်း', Color(0xFF5B8CFF), 5, _Action.workflow, 'speech_synthesis'),
   _Module('ED', 'Video Editor', 'Timeline', Color(0xFFA46BFF), 6, _Action.workflow),
   _Module('RN', 'Render Center', 'MP4 ထုတ်', Color(0xFFF2C94C), 7, _Action.workflow),
   _Module('DL', 'Drama Library', 'ဇာတ်လမ်း၊ အပိုင်း', Color(0xFFFF9F43), 2, _Action.library),
@@ -70,9 +72,9 @@ const _modules = <_Module>[
   _Module('NW', 'သတင်း (RSS)', 'သတင်းဖတ်၊ script ရေး', Color(0xFF2FA8FF), 14, _Action.news),
   _Module('BK', 'Backup / Restore', 'Project သိမ်း/ပြန်ယူ', Color(0xFF8E9AAF), 12, _Action.backup),
   _Module('UP', 'Upload & Thumbnail', 'ခေါင်းစဉ်၊ hashtag၊ ပုံ', Color(0xFFFF6B9D), 11, _Action.publish),
-  _Module('TR', 'Translation Studio', 'Recap / Full Translation', Color(0xFF35B6A5), 4),
-  _Module('WH', 'Whisper Subtitles', 'အသံမှ SRT အလိုအလျောက်ထုတ်', Color(0xFF62A0EA), 5),
-  _Module('BM', 'Smart Blur Masks', 'နေရာသတ်မှတ်ပြီး Blur ဖုံး', Color(0xFFB17CE8), 6),
+  _Module('TR', 'Translation Studio', 'Recap / Full Translation', Color(0xFF35B6A5), 4, _Action.none, 'translation'),
+  _Module('WH', 'Whisper Subtitles', 'အသံမှ SRT အလိုအလျောက်ထုတ်', Color(0xFF62A0EA), 5, _Action.none, 'whisper_transcription'),
+  _Module('BM', 'Smart Blur Masks', 'နေရာသတ်မှတ်ပြီး Blur ဖုံး', Color(0xFFB17CE8), 6, _Action.none, 'smart_blur_masks'),
 ];
 
 class HomeScreen extends StatelessWidget {
@@ -391,6 +393,19 @@ class _ModuleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = module.color;
+    final capability = capabilityById(module.capabilityId ?? '');
+    final status = capability == null
+        ? (module.action == _Action.none ? 'စီစဉ်ဆဲ · Phase ${module.phase}' : 'သုံးလို့ရ')
+        : switch (capability.state) {
+            CapabilityState.available => 'သုံးလို့ရ',
+            CapabilityState.partial => 'တစ်စိတ်တစ်ပိုင်း',
+            CapabilityState.planned => 'စီစဉ်ဆဲ',
+            CapabilityState.unavailable => 'မရသေး',
+          };
+    final statusColor = capability?.state == CapabilityState.available ||
+            (capability == null && module.action != _Action.none)
+        ? DfColors.ok
+        : DfColors.muted;
     return Material(
       color: DfColors.surface,
       elevation: 0,
@@ -420,7 +435,7 @@ class _ModuleTile extends StatelessWidget {
                     child: Icon(_moduleIcon(module.code), color: c, size: 20),
                   ),
                   const Spacer(),
-                  Text(module.action == _Action.none ? 'စီစဉ်ဆဲ · Phase ${module.phase}' : 'သုံးလို့ရ', style: TextStyle(color: module.action == _Action.none ? DfColors.muted : DfColors.ok, fontSize: 11)),
+                  Text(status, style: TextStyle(color: statusColor, fontSize: 11)),
                 ],
               ),
               const Spacer(),
