@@ -156,8 +156,8 @@ const rgCapabilities = <FeatureCapability>[
   ),
   FeatureCapability(
     id: 'translation',
-    state: CapabilityState.planned,
-    note: 'Provider ချိတ်ဆက်မှု မပြီးသေးပါ',
+    state: CapabilityState.partial,
+    note: 'Gemini app သို့ chunk ခွဲပို့ပြီး ပြန်ထည့်နိုင်သည်။ API အလိုအလျောက်ဘာသာပြန် မချိတ်ရသေးပါ',
   ),
   FeatureCapability(
     id: 'whisper_transcription',
