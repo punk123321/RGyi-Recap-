@@ -48,6 +48,10 @@ class _AudioPanelState extends State<AudioPanel> {
   int? _busy; // chunk that is being synthesized
   int? _recording; // chunk that is being recorded
   int? _playingId;
+  bool _batchRunning = false;
+  bool _batchCancelRequested = false;
+  int _batchDone = 0;
+  int _batchTotal = 0;
   String? _msg;
   bool _msgError = false;
   StreamSubscription<void>? _sub;
@@ -279,11 +283,24 @@ class _AudioPanelState extends State<AudioPanel> {
   }
 
   Future<void> _apiAll(List<String> chunks) async {
-    for (var i = 0; i < chunks.length; i++) {
-      if (!mounted) return;
-      if (_clipOf(i) != null || chunks[i].isEmpty) continue;
-      await _makeApiTts(i, chunks[i]);
-      if (_msgError) return;
+    if (_batchRunning) return;
+    setState(() {
+      _batchRunning = true;
+      _batchCancelRequested = false;
+      _batchDone = 0;
+      _batchTotal = chunks.asMap().entries.where((e) => _clipOf(e.key) == null && e.value.trim().isNotEmpty).length;
+    });
+    try {
+      for (var i = 0; i < chunks.length; i++) {
+        if (!mounted || _batchCancelRequested) break;
+        if (_clipOf(i) != null || chunks[i].trim().isEmpty) continue;
+        await _makeApiTts(i, chunks[i]);
+        if (!mounted || _msgError) break;
+        if (mounted) setState(() => _batchDone++);
+      }
+      if (mounted) _say(_batchCancelRequested ? 'Batch ကို ရပ်လိုက်ပါပြီ။ ပြီးပြီးသား အသံတွေ မပျက်ပါ။' : (_msgError ? 'Batch မှာ အမှားရှိလို့ ရပ်ထားပါတယ်။ ပြီးပြီးသားအသံတွေကို ထိန်းထားပါတယ်။' : 'Gemini Batch ပြီးပါပြီ။'));
+    } finally {
+      if (mounted) setState(() => _batchRunning = false);
     }
   }
 
@@ -348,12 +365,31 @@ class _AudioPanelState extends State<AudioPanel> {
   }
 
   Future<void> _ttsAll(List<String> chunks) async {
-    for (var i = 0; i < chunks.length; i++) {
-      if (!mounted) return;
-      if (_clipOf(i) != null) continue;
-      await _makeTts(i, chunks[i]);
-      if (_msgError) return;
+    if (_batchRunning) return;
+    setState(() {
+      _batchRunning = true;
+      _batchCancelRequested = false;
+      _batchDone = 0;
+      _batchTotal = chunks.asMap().entries.where((e) => _clipOf(e.key) == null && e.value.trim().isNotEmpty).length;
+    });
+    try {
+      for (var i = 0; i < chunks.length; i++) {
+        if (!mounted || _batchCancelRequested) break;
+        if (_clipOf(i) != null || chunks[i].trim().isEmpty) continue;
+        await _makeTts(i, chunks[i]);
+        if (!mounted || _msgError) break;
+        if (mounted) setState(() => _batchDone++);
+      }
+      if (mounted) _say(_batchCancelRequested ? 'Batch ကို ရပ်လိုက်ပါပြီ။ ပြီးပြီးသား အသံတွေ မပျက်ပါ။' : (_msgError ? 'Batch မှာ အမှားရှိလို့ ရပ်ထားပါတယ်။' : 'TTS Batch ပြီးပါပြီ။'));
+    } finally {
+      if (mounted) setState(() => _batchRunning = false);
     }
+  }
+
+  void _cancelBatch() {
+    if (!_batchRunning) return;
+    setState(() => _batchCancelRequested = true);
+    _say('လက်ရှိ Chunk ပြီးတာနဲ့ Batch ရပ်ပါမယ်။');
   }
 
   Future<void> _toggleRecord(int i) async {
@@ -427,7 +463,7 @@ class _AudioPanelState extends State<AudioPanel> {
     final chunks = _chunks;
     final haveClips = chunks.indexed.where((e) => _clipOf(e.$1) != null).length;
     final totalMs = [for (var i = 0; i < chunks.length; i++) _clipOf(i)?.durationMs ?? 0].fold<int>(0, (a, b) => a + b);
-    final busyAny = _busy != null || _recording != null;
+    final busyAny = _busy != null || _recording != null || _batchRunning;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -508,6 +544,16 @@ class _AudioPanelState extends State<AudioPanel> {
           const SizedBox(height: 14),
           _aiSettings(),
           _section('၃။ Chunk ${chunks.length} ခု · အသံ $haveClips/${chunks.length}${totalMs > 0 ? ' · ${formatTime(totalMs)}' : ''}'),
+          if (_batchRunning) ...[
+            const SizedBox(height: 8),
+            LinearProgressIndicator(value: _batchTotal == 0 ? null : _batchDone / _batchTotal),
+            const SizedBox(height: 4),
+            Row(children: [
+              Expanded(child: Text('Batch လုပ်ဆောင်နေသည် · $_batchDone/$_batchTotal', style: const TextStyle(fontSize: 12, color: DfColors.muted))),
+              TextButton.icon(onPressed: _cancelBatch, icon: const Icon(Icons.stop_circle_outlined, size: 17), label: const Text('ရပ်မယ်')),
+            ]),
+          ],
+
           if (_tts?.burmese == true && _script.trim().isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
