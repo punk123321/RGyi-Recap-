@@ -344,8 +344,11 @@ class _ModuleTile extends StatelessWidget {
       return;
     }
     if (module.action == _Action.none) {
+      final capability = capabilityById(module.capabilityId ?? '');
       messenger.showSnackBar(SnackBar(
-        content: Text('${module.title} ကို Phase ${module.phase} မှာ ရေးမယ်။ အခု မရသေးပါဘူး။'),
+        content: Text(capability == null
+            ? '${module.title} ကို Phase ${module.phase} မှာ ရေးမယ်။ အခု မရသေးပါဘူး။'
+            : '${module.title} — ${capability.note}'),
       ));
       return;
     }
