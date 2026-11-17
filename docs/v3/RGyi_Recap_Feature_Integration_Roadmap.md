@@ -105,7 +105,7 @@ Free Mode must keep every existing stage manually accessible. Guided Mode recomm
 - [x] Add provider-neutral Translation, Transcription and Speech Synthesis contracts.
 - [x] Add cue-preserving translation application helper.
 - [x] Add capability registry and contract regression tests.
-- [ ] Wire capability states into module UI.
+- [x] Wire capability states into Home Studio module cards and show honest availability labels.
 - [ ] Add real provider adapters only after provider/runtime selection and tests.
 
 ### Phase 3 — Voice Studio upgrade
