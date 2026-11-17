@@ -148,6 +148,24 @@ void main() {
     });
   });
 
+  group('blur masks', () {
+    test('clamps region and strength inside the output frame', () {
+      final m = const BlurMask(startMs: -5, endMs: 0, x: 0.9, y: -1, width: 0.8, height: 0.4, strength: 99).fitted;
+      expect(m.startMs, 0);
+      expect(m.endMs, 1);
+      expect(m.x + m.width, closeTo(1, 1e-9));
+      expect(m.y, 0);
+      expect(m.strength, 40);
+    });
+    test('copyWith keeps the other settings', () {
+      const m = BlurMask(startMs: 100, endMs: 900, x: 0.1, y: 0.2, width: 0.3, height: 0.4, strength: 10);
+      final n = m.copyWith(strength: 25);
+      expect(n.startMs, 100);
+      expect(n.width, 0.3);
+      expect(n.strength, 25);
+    });
+  });
+
   group('checks', () {
     test('empty timeline is an error', () {
       final r = checkTimeline(const Timeline(), sourceMs: 60000);
@@ -191,12 +209,13 @@ void main() {
       expect(t.logo, isNull);
     });
 
-    test('round trip keeps style, corner texts, logo and piece zoom', () {
+    test('round trip keeps style, corner texts, logo, blur masks and piece zoom', () {
       const t = Timeline(
         pieces: [VideoPiece(0, 5000, ZoomMode.zoomIn), VideoPiece(5000, 9000)],
         style: SubStyle(size: 0.07, color: 0xFFFFE066, background: false, top: true),
         corners: [CornerText(text: 'translate by brutal knock out', corner: Corner.topLeft, size: 0.04, color: 0xFF00FF00)],
         logo: LogoItem(path: '/app/logos/a.png', corner: Corner.bottomLeft, size: 0.2, opacity: 0.5),
+        blurMasks: [BlurMask(startMs: 500, endMs: 4500, x: 0.1, y: 0.2, width: 0.4, height: 0.3, strength: 22)],
       );
       final b = Timeline.decode(t.encode());
       expect(b.pieces[0].zoom, ZoomMode.zoomIn);
@@ -211,6 +230,7 @@ void main() {
       expect(b.logo!.path, '/app/logos/a.png');
       expect(b.logo!.corner, Corner.bottomLeft);
       expect(b.logo!.opacity, 0.5);
+      expect(b.blurMasks.single, const BlurMask(startMs: 500, endMs: 4500, x: 0.1, y: 0.2, width: 0.4, height: 0.3, strength: 22));
     });
 
     test('an old save without the new fields still opens', () {
@@ -218,6 +238,7 @@ void main() {
       expect(b.pieces.single.zoom, ZoomMode.none);
       expect(b.style.size, 0.05);
       expect(b.corners, isEmpty);
+      expect(b.blurMasks, isEmpty);
     });
 
     test('out of range values are clamped, bad corner falls back', () {
