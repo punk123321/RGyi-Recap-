@@ -1,4 +1,4 @@
-package com.dramaflow.aistudio
+package com.rgyi.recap
 
 import android.Manifest
 import android.app.Activity
@@ -38,7 +38,7 @@ import java.util.concurrent.Executors
  * No storage permission is needed. Nothing here talks to the internet.
  */
 class MainActivity : FlutterActivity() {
-    private val channelName = "com.dramaflow.aistudio/media"
+    private val channelName = "com.rgyi.recap/media"
     private val pickVideoCode = 4101
     private val pickTextCode = 4102
     private val saveTextCode = 4103
@@ -70,7 +70,7 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         val ch = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channelName)
         channel = ch
-        val rch = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.dramaflow.aistudio/render")
+        val rch = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.rgyi.recap/render")
         val engine = RenderEngine(this, rch)
         render = engine
         rch.setMethodCallHandler { call, result ->
