@@ -4,7 +4,7 @@ import '../data/video_info.dart';
 
 /// Talks to MainActivity.kt (see native/MainActivity.kt).
 class VideoImport {
-  static const _channel = MethodChannel('com.dramaflow.aistudio/media');
+  static const _channel = MethodChannel('com.rgyi.recap/media');
 
   /// Opens the Android file picker for videos.
   /// Returns null when the user cancels. Throws [PlatformException] when the
