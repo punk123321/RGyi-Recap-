@@ -1,4 +1,4 @@
-package com.dramaflow.aistudio
+package com.rgyi.recap
 
 import android.app.Notification
 import android.app.NotificationChannel
