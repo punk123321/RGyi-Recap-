@@ -51,7 +51,7 @@ Each feature must pass its acceptance checks before it is labelled ready.
 ### A. Voice Studio
 Already present: device TTS where a Burmese voice is installed, recording, imported audio, chunked narration and optional Gemini API TTS.
 
-Next: unified provider catalogue, voice audition, per-chunk controls, batch progress/cancel/retry/resume and audio quality controls.
+Implemented in this upgrade: batch TTS now shows progress and can be stopped safely between chunks; completed clips are retained, and the existing missing-only queue allows the user to resume by running it again. Existing per-chunk TTS/Gemini TTS, microphone, import and playback remain available.\n\nNext: unified provider catalogue, voice audition, per-chunk voice settings, retry controls and audio quality controls.
 
 Acceptance: one chunk can be regenerated without overwriting others; offline/manual paths remain usable without an API key; provider failures are recoverable.
 
@@ -116,8 +116,7 @@ Free Mode must keep every existing stage manually accessible. Guided Mode recomm
 - [x] Add dedicated Translation Studio route with distinct Recap and Full SRT mode selection.
 - [x] Reuse existing chunked Gemini handoff and per-project result persistence for both modes.
 
-### Phase 3 — Voice Studio upgrade
-Voice catalogue, preview, per-chunk settings, batch queue, retry/resume and quality controls.
+### Phase 3 — Voice Studio upgrade (in progress)\n- [x] Add visible batch progress for device TTS and Gemini TTS.\n- [x] Add safe stop between chunks; completed audio is retained and missing-only queue supports resume.\n- [ ] Unified provider catalogue, voice audition, per-chunk settings, retry controls and quality controls.
 
 ### Phase 4 — Translation Studio
 **In progress:** separate Recap and Full SRT modes are wired to the existing handoff. Remaining: direct provider integration, glossary, side-by-side review and stronger separate source/target document management.
