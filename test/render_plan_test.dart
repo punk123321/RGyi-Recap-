@@ -100,6 +100,12 @@ void main() {
       expect((j['logo'] as Map)['path'], '/a/logo.png');
     });
 
+    test('blur masks are forwarded as normalized output-time regions', () {
+      const t = Timeline(pieces: [VideoPiece(0, 5000)], blurMasks: [BlurMask(startMs: 250, endMs: 4000, x: 0.1, y: 0.2, width: 0.3, height: 0.4, strength: 20)]);
+      final j = buildRenderJob(name: 'n', videoUri: 'v', timeline: t, sourceSubtitles: const [], settings: const RenderSettings());
+      expect((j['blurMasks'] as List).single, {'s': 250, 'e': 4000, 'x': 0.1, 'y': 0.2, 'w': 0.3, 'h': 0.4, 'b': 20.0});
+    });
+
     test('no music means null', () {
       final j = buildRenderJob(name: 'n', videoUri: 'v', timeline: const Timeline(pieces: pieces), sourceSubtitles: const [], settings: const RenderSettings());
       expect(j['music'], isNull);
