@@ -189,34 +189,133 @@ class _StudioHero extends StatelessWidget {
   const _StudioHero({required this.onCreate, required this.onWorkflow});
   final VoidCallback onCreate;
   final VoidCallback onWorkflow;
+
+  @override
+  Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 620;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 258),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF30205F), Color(0xFF172D51), Color(0xFF101827)],
+          stops: [0, .52, 1],
+        ),
+        border: Border.all(color: const Color(0xFF8B78FF).withValues(alpha: .48)),
+        boxShadow: [
+          BoxShadow(color: const Color(0xFF765BFF).withValues(alpha: .22), blurRadius: 42, offset: const Offset(0, 18)),
+          BoxShadow(color: Colors.black.withValues(alpha: .24), blurRadius: 18, offset: const Offset(0, 9)),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(29),
+        child: Stack(
+          children: [
+            Positioned(right: -62, top: -95, child: Container(
+              width: 250, height: 250,
+              decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [const Color(0xFF9B7BFF).withValues(alpha: .34), Colors.transparent])),
+            )),
+            Positioned(right: 16, bottom: -105, child: Container(
+              width: 220, height: 220,
+              decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [const Color(0xFF22D3EE).withValues(alpha: .19), Colors.transparent])),
+            )),
+            Positioned(right: wide ? 46 : -8, top: 22, child: Opacity(
+              opacity: .13,
+              child: Icon(Icons.movie_filter_rounded, size: wide ? 190 : 142, color: Colors.white),
+            )),
+            Padding(
+              padding: EdgeInsets.all(wide ? 28 : 21),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF22D3EE).withValues(alpha: .12),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: const Color(0xFF22D3EE).withValues(alpha: .3)),
+                      ),
+                      child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.auto_awesome, size: 12, color: Color(0xFF67E8F9)),
+                        SizedBox(width: 7),
+                        Text('AI MOVIE PRODUCTION STUDIO', style: TextStyle(fontSize: 9, letterSpacing: 1.05, fontWeight: FontWeight.w900, color: Color(0xFF9DECF6))),
+                      ]),
+                    ),
+                    const Spacer(),
+                    const Icon(Icons.bolt_rounded, size: 20, color: Color(0xFFFFD78A)),
+                  ]),
+                  const SizedBox(height: 23),
+                  Text('Your Story.\\nYour Cinematic Recap.', style: TextStyle(fontSize: wide ? 32 : 28, height: 1.08, fontWeight: FontWeight.w900, letterSpacing: -.8)),
+                  const SizedBox(height: 10),
+                  const ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 470),
+                    child: Text('CREATE  •  TRANSLATE  •  NARRATE  •  PRODUCE\\nဗီဒီယိုကနေ နောက်ဆုံး MP4 အထိ Studio တစ်ခုထဲမှာ ဖန်တီးပါ။',
+                      style: TextStyle(fontSize: 11, height: 1.65, letterSpacing: .35, color: Color(0xFFC4D1E8))),
+                  ),
+                  const SizedBox(height: 21),
+                  Wrap(spacing: 10, runSpacing: 9, children: [
+                    FilledButton.icon(
+                      onPressed: onCreate,
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('New Project'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF9B7BFF),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 13),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                        elevation: 5,
+                        shadowColor: const Color(0xFF9B7BFF).withValues(alpha: .45),
+                      ),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: onWorkflow,
+                      icon: const Icon(Icons.layers_outlined, size: 17),
+                      label: const Text('Open Workspace'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: BorderSide(color: Colors.white.withValues(alpha: .32)),
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                        backgroundColor: Colors.white.withValues(alpha: .045),
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 21),
+                  Wrap(spacing: 8, runSpacing: 8, children: const [
+                    _HeroTag(icon: Icons.video_library_outlined, label: 'VIDEO'),
+                    _HeroTag(icon: Icons.subtitles_outlined, label: 'SUBTITLE'),
+                    _HeroTag(icon: Icons.graphic_eq_rounded, label: 'VOICE'),
+                    _HeroTag(icon: Icons.movie_creation_outlined, label: 'RENDER'),
+                  ]),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroTag extends StatelessWidget {
+  const _HeroTag({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
   @override
   Widget build(BuildContext context) => Container(
-    constraints: const BoxConstraints(minHeight: 210),
-    padding: const EdgeInsets.all(22),
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(26),
-      gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF28204F), Color(0xFF142C45), Color(0xFF101A2B)]),
-      border: Border.all(color: const Color(0xFF8B75FF).withValues(alpha: .42)),
-      boxShadow: [BoxShadow(color: const Color(0xFF6753D8).withValues(alpha: .16), blurRadius: 34, offset: const Offset(0, 14))],
+      color: Colors.white.withValues(alpha: .055),
+      borderRadius: BorderRadius.circular(9),
+      border: Border.all(color: Colors.white.withValues(alpha: .10)),
     ),
-    child: Stack(children: [
-      Positioned(right: -12, top: -24, child: Icon(Icons.movie_filter_rounded, size: 180, color: Colors.white.withValues(alpha: .045))),
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: DfColors.secondary.withValues(alpha: .12), borderRadius: BorderRadius.circular(30)), child: const Text('✦  AI-POWERED VIDEO STUDIO', style: TextStyle(color: DfColors.secondary, fontSize: 9, letterSpacing: 1.2, fontWeight: FontWeight.w900))),
-          const Spacer(),
-          const Icon(Icons.auto_awesome, color: Color(0xFFFFD78A), size: 20),
-        ]),
-        const SizedBox(height: 18),
-        const Text('Your Story.\nYour Cinematic Recap.', style: TextStyle(fontSize: 27, height: 1.12, fontWeight: FontWeight.w900, letterSpacing: -.7)),
-        const SizedBox(height: 8),
-        const Text('ဗီဒီယို၊ စာတန်းထိုး၊ အသံနဲ့ Editing ကို Workspace တစ်ခုထဲမှာ စီမံဖန်တီးပါ။', style: TextStyle(fontSize: 12, height: 1.5, color: Color(0xFFB9C6DD))),
-        const SizedBox(height: 18),
-        Wrap(spacing: 10, runSpacing: 8, children: [
-          FilledButton.icon(onPressed: onCreate, icon: const Icon(Icons.add_rounded, size: 18), label: const Text('Create Project'), style: FilledButton.styleFrom(backgroundColor: const Color(0xFF9B7BFF), foregroundColor: Colors.white)),
-          OutlinedButton.icon(onPressed: onWorkflow, icon: const Icon(Icons.account_tree_outlined, size: 17), label: const Text('Open Workspace'), style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: BorderSide(color: Colors.white.withValues(alpha: .25)))),
-        ]),
-      ]),
+    child: Row(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, size: 12, color: const Color(0xFF9DECF6)),
+      const SizedBox(width: 6),
+      Text(label, style: const TextStyle(fontSize: 8, letterSpacing: 1, fontWeight: FontWeight.w800, color: Color(0xFFD8E5F8))),
     ]),
   );
 }
@@ -412,28 +511,69 @@ class _ModuleTile extends StatelessWidget {
             CapabilityState.planned => 'PLANNED',
             CapabilityState.unavailable => 'OFFLINE',
           };
-    return Material(
-      color: DfColors.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: c.withValues(alpha: .25))),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => _tap(context),
-        child: Stack(children: [
-          Positioned(right: -15, bottom: -22, child: Icon(_moduleIcon(module.code), size: 104, color: c.withValues(alpha: .055))),
-          Padding(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Container(width: 42, height: 42, decoration: BoxDecoration(color: c.withValues(alpha: .14), borderRadius: BorderRadius.circular(13), border: Border.all(color: c.withValues(alpha: .42))), child: Icon(_moduleIcon(module.code), color: c, size: 23)),
-              const Spacer(),
-              Container(padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4), decoration: BoxDecoration(color: (available ? DfColors.ok : DfColors.warn).withValues(alpha: .10), borderRadius: BorderRadius.circular(20)), child: Text(status, style: TextStyle(fontSize: 8, letterSpacing: .7, fontWeight: FontWeight.w900, color: available ? DfColors.ok : DfColors.warn))),
-            ]),
-            const Spacer(),
-            Text(module.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 3),
-            Text(module.sub, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: DfColors.muted, fontSize: 10)),
-            const SizedBox(height: 8),
-            Row(children: [Text('OPEN MODULE', style: TextStyle(color: c, fontSize: 8, letterSpacing: 1.1, fontWeight: FontWeight.w900)), const Spacer(), Icon(Icons.arrow_outward_rounded, size: 14, color: c)]),
-          ])),
-        ]),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [c.withValues(alpha: .28), DfColors.line.withValues(alpha: .55), DfColors.surface]),
+        boxShadow: [
+          BoxShadow(color: c.withValues(alpha: .10), blurRadius: 18, offset: const Offset(0, 8)),
+          BoxShadow(color: Colors.black.withValues(alpha: .16), blurRadius: 10, offset: const Offset(0, 5)),
+        ],
+      ),
+      padding: const EdgeInsets.all(1),
+      child: Material(
+        color: DfColors.surface,
+        borderRadius: BorderRadius.circular(21),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _tap(context),
+          child: Stack(children: [
+            Positioned(right: -19, bottom: -26, child: Icon(_moduleIcon(module.code), size: 112, color: c.withValues(alpha: .065))),
+            Positioned(right: 0, top: 0, child: Container(
+              width: 72, height: 72,
+              decoration: BoxDecoration(gradient: RadialGradient(colors: [c.withValues(alpha: .12), Colors.transparent])),
+            )),
+            Padding(
+              padding: const EdgeInsets.all(13),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  Container(
+                    width: 43, height: 43,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [c.withValues(alpha: .28), c.withValues(alpha: .08)]),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: c.withValues(alpha: .52)),
+                      boxShadow: [BoxShadow(color: c.withValues(alpha: .13), blurRadius: 12, offset: const Offset(0, 4))],
+                    ),
+                    child: Icon(_moduleIcon(module.code), color: c, size: 23),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: (available ? DfColors.ok : DfColors.warn).withValues(alpha: .10),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: (available ? DfColors.ok : DfColors.warn).withValues(alpha: .22)),
+                    ),
+                    child: Text(status, style: TextStyle(fontSize: 7, letterSpacing: .55, fontWeight: FontWeight.w900, color: available ? DfColors.ok : DfColors.warn)),
+                  ),
+                ]),
+                const Spacer(),
+                Text(module.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: .05)),
+                const SizedBox(height: 4),
+                Text(module.sub, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: DfColors.muted, fontSize: 9)),
+                const SizedBox(height: 9),
+                Row(children: [
+                  Container(width: 18, height: 2, decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(2))),
+                  const SizedBox(width: 7),
+                  Text('OPEN MODULE', style: TextStyle(color: c, fontSize: 8, letterSpacing: 1, fontWeight: FontWeight.w900)),
+                  const Spacer(),
+                  Icon(Icons.arrow_outward_rounded, size: 14, color: c),
+                ]),
+              ]),
+            ),
+          ]),
+        ),
       ),
     );
   }
