@@ -5,6 +5,7 @@ import 'library_screen.dart';
 import 'placeholder_screen.dart';
 import 'workflow_screen.dart';
 import 'widgets.dart';
+import '../core/theme.dart';
 
 class Shell extends StatefulWidget {
   const Shell({super.key});
@@ -19,10 +20,10 @@ class _ShellState extends State<Shell> {
   @override
   Widget build(BuildContext context) {
     final destinations = const [
-      NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
+      NavigationDestination(icon: Icon(Icons.grid_view_rounded), selectedIcon: Icon(Icons.grid_view_rounded), label: 'Studio'),
       NavigationDestination(icon: Icon(Icons.account_tree_outlined), selectedIcon: Icon(Icons.account_tree), label: 'Workflow'),
-      NavigationDestination(icon: Icon(Icons.video_library_outlined), selectedIcon: Icon(Icons.video_library), label: 'Library'),
-      NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'Settings'),
+      NavigationDestination(icon: Icon(Icons.video_library_outlined), selectedIcon: Icon(Icons.video_library_rounded), label: 'Projects'),
+      NavigationDestination(icon: Icon(Icons.tune_rounded), selectedIcon: Icon(Icons.tune_rounded), label: 'Settings'),
     ];
     final pages = [
       HomeScreen(
@@ -41,6 +42,13 @@ class _ShellState extends State<Shell> {
             return Row(
               children: [
                 NavigationRail(
+                  backgroundColor: DfColors.bg,
+                  useIndicator: true,
+                  indicatorColor: DfColors.accent.withValues(alpha: .22),
+                  selectedIconTheme: const IconThemeData(color: DfColors.secondary),
+                  unselectedIconTheme: const IconThemeData(color: DfColors.muted),
+                  selectedLabelTextStyle: const TextStyle(color: DfColors.ink, fontWeight: FontWeight.w800),
+                  unselectedLabelTextStyle: const TextStyle(color: DfColors.muted),
                   selectedIndex: _index,
                   onDestinationSelected: (i) => setState(() => _index = i),
                   extended: constraints.maxWidth >= 1200,
@@ -69,10 +77,22 @@ class _ShellState extends State<Shell> {
         },
       ),
       bottomNavigationBar: MediaQuery.sizeOf(context).width < 850
-          ? NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: (i) => setState(() => _index = i),
-              destinations: destinations,
+          ? Container(
+              decoration: BoxDecoration(
+                color: DfColors.surface,
+                border: Border(top: BorderSide(color: DfColors.line.withValues(alpha: .9))),
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .18), blurRadius: 18, offset: const Offset(0, -5))],
+              ),
+              child: NavigationBar(
+                height: 72,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                indicatorColor: DfColors.accent.withValues(alpha: .22),
+                selectedIndex: _index,
+                onDestinationSelected: (i) => setState(() => _index = i),
+                destinations: destinations,
+              ),
             )
           : null,
     );
