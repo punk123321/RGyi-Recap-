@@ -48,6 +48,8 @@ class _AudioPanelState extends State<AudioPanel> {
   int? _busy; // chunk that is being synthesized
   int? _recording; // chunk that is being recorded
   int? _playingId;
+  String? _previewPath;
+  bool _previewingVoice = false;
   bool _batchRunning = false;
   bool _batchCancelRequested = false;
   int _batchDone = 0;
@@ -74,6 +76,7 @@ class _AudioPanelState extends State<AudioPanel> {
     super.initState();
     _sub = AudioChannel.playbackEnded.listen((_) {
       if (mounted) setState(() => _playingId = null);
+      _clearVoicePreview();
     });
     _load();
   }
@@ -83,7 +86,10 @@ class _AudioPanelState extends State<AudioPanel> {
     _keyC.dispose();
     _modelC.dispose();
     _sub?.cancel();
-    AudioChannel.stop().catchError((_) {});
+    final preview = _previewPath;
+    AudioChannel.stop().then((_) {
+      if (preview != null) return AudioChannel.deleteFile(preview);
+    }).catchError((_) {});
     super.dispose();
   }
 
@@ -255,6 +261,42 @@ class _AudioPanelState extends State<AudioPanel> {
     if (mounted) setState(() => _busy = null);
   }
 
+  Future<void> _previewGeminiVoice() async {
+    if (!_ai.ready || _previewingVoice) return;
+    setState(() {
+      _previewingVoice = true;
+      _msg = null;
+    });
+    String? path;
+    try {
+      final sample = 'မင်္ဂလာပါ။ ဒီအသံက မြန်မာဘာသာနဲ့ ဇာတ်လမ်းအကျဉ်းချုပ် ဖတ်ပြဖို့ သင့်တော်မတော် စမ်းသပ်နားထောင်ရန် ဖြစ်ပါတယ်။';
+      final wav = await geminiSpeak(_ai, sample);
+      final file = await AudioChannel.saveAudioBytes(
+        'voice_preview_${DateTime.now().millisecondsSinceEpoch}',
+        wav,
+      );
+      path = file.source;
+      _previewPath = path;
+      await AudioChannel.play(path);
+      _say('${_ai.voice} အသံကို စမ်းနားထောင်နေပါတယ်။');
+    } catch (e) {
+      if (path != null) {
+        try { await AudioChannel.deleteFile(path); } catch (_) {}
+      }
+      _previewPath = null;
+      _say(e is GeminiTtsException ? e.message : _explain(e), error: true);
+    } finally {
+      if (mounted) setState(() => _previewingVoice = false);
+    }
+  }
+
+  void _clearVoicePreview() {
+    final path = _previewPath;
+    if (path == null) return;
+    _previewPath = null;
+    AudioChannel.deleteFile(path).catchError((_) {});
+  }
+
   Future<void> _saveAi(GeminiTtsSettings next) async {
     setState(() => _ai = next);
     try {
@@ -332,6 +374,19 @@ class _AudioPanelState extends State<AudioPanel> {
           decoration: const InputDecoration(labelText: 'အသံ'),
           items: [for (final v in ttsVoices) DropdownMenuItem(value: v, child: Text(v))],
           onChanged: (v) => setState(() => _ai = _ai.copyWith(voice: v)),
+        ),
+        const SizedBox(height: 4),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed: (!_ai.ready || _previewingVoice || _busy != null || _batchRunning)
+                ? null
+                : _previewGeminiVoice,
+            icon: _previewingVoice
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.play_circle_outline, size: 18),
+            label: const Text('ရွေးထားတဲ့အသံကို စမ်းနားထောင်'),
+          ),
         ),
         const SizedBox(height: 8),
         FilledButton(
