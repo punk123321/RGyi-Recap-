@@ -31,7 +31,7 @@ class RenderCanceled extends RenderEvent {
 
 /// Android video rendering (see native/RenderEngine.kt). No internet.
 class RenderChannel {
-  static const _channel = MethodChannel('com.dramaflow.aistudio/render');
+  static const _channel = MethodChannel('com.rgyi.recap/render');
   static final _events = StreamController<RenderEvent>.broadcast();
   static bool _wired = false;
 
