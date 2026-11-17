@@ -16,7 +16,6 @@ class TranslationStudioScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Translation Studio'),
-        subtitle: Text(project.name),
       ),
       body: SafeArea(
         child: ListView(
