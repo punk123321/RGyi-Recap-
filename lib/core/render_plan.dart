@@ -260,6 +260,7 @@ Map<String, Object?> buildRenderJob({
     'subtitles': [for (final s in subs) {'s': s.startMs, 'e': s.endMs, 't': s.text}],
     if (overlays.isNotEmpty) 'overlays': overlays,
     if (splits.isNotEmpty) 'splits': splits,
+    if (timeline.blurMasks.isNotEmpty) 'blurMasks': [for (final m in timeline.blurMasks) m.toJson()],
   };
 }
 
