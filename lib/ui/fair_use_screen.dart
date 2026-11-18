@@ -99,7 +99,7 @@ class _FairUseScreenState extends State<FairUseScreen> {
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
               children: [
-                if (_error != null) ErrorBanner(_error!),
+                if (_error != null) PremiumMessage(_error!, error: true),
                 Text(p.name, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 Container(
