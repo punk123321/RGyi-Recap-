@@ -536,6 +536,7 @@ class _AudioPanelState extends State<AudioPanel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _status(),
+        _audioOverview(chunks.length, haveClips, totalMs),
         if (_msg != null)
           Container(
             margin: const EdgeInsets.only(bottom: 10),
@@ -645,6 +646,81 @@ class _AudioPanelState extends State<AudioPanel> {
     );
   }
 
+  Widget _audioOverview(int total, int done, int totalMs) {
+    final progress = total == 0 ? 0.0 : (done / total).clamp(0.0, 1.0);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF252044), Color(0xFF17283B), DfColors.surface],
+        ),
+        border: Border.all(color: DfColors.accent.withValues(alpha: .30)),
+        boxShadow: [
+          BoxShadow(color: DfColors.accent.withValues(alpha: .08), blurRadius: 22, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: DfColors.secondary.withValues(alpha: .15),
+              borderRadius: BorderRadius.circular(13),
+              border: Border.all(color: DfColors.secondary.withValues(alpha: .28)),
+            ),
+            child: const Icon(Icons.graphic_eq_rounded, color: DfColors.secondary, size: 23),
+          ),
+          const SizedBox(width: 11),
+          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('AUDIO PRODUCTION', style: TextStyle(fontSize: 9, letterSpacing: 1.6, fontWeight: FontWeight.w900, color: DfColors.secondary)),
+            SizedBox(height: 3),
+            Text('Narration Studio', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: DfColors.ink)),
+          ])),
+          Text('${(progress * 100).round()}%', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: DfColors.ok)),
+        ]),
+        const SizedBox(height: 15),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 6,
+            backgroundColor: DfColors.line,
+            valueColor: const AlwaysStoppedAnimation<Color>(DfColors.secondary),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(children: [
+          _audioMetric('READY', '$done / $total', DfColors.ok),
+          const SizedBox(width: 8),
+          _audioMetric('TOTAL AUDIO', totalMs > 0 ? formatTime(totalMs) : '—', DfColors.secondary),
+          const SizedBox(width: 8),
+          _audioMetric('SOURCE', _ai.ready ? 'GEMINI' : 'DEVICE', DfColors.pink),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _audioMetric(String label, String value, Color color) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 9),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: .16),
+            borderRadius: BorderRadius.circular(11),
+            border: Border.all(color: color.withValues(alpha: .20)),
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 8, letterSpacing: .8, fontWeight: FontWeight.w900, color: color)),
+            const SizedBox(height: 4),
+            Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: DfColors.ink)),
+          ]),
+        ),
+      );
+
   Widget _status() {
     final t = _tts;
     final String text;
@@ -686,15 +762,49 @@ class _AudioPanelState extends State<AudioPanel> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: recordingThis ? DfColors.danger : (clip != null ? DfColors.ok : DfColors.line)),
+        color: recordingThis
+            ? DfColors.danger.withValues(alpha: .07)
+            : (clip != null ? DfColors.ok.withValues(alpha: .045) : DfColors.surface),
+        gradient: clip == null && !recordingThis
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [DfColors.raise.withValues(alpha: .72), DfColors.surface],
+              )
+            : null,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: recordingThis ? DfColors.danger.withValues(alpha: .65) : (clip != null ? DfColors.ok.withValues(alpha: .45) : DfColors.line),
+          width: recordingThis ? 1.4 : 1,
+        ),
+        boxShadow: [
+          if (recordingThis || clip != null)
+            BoxShadow(
+              color: (recordingThis ? DfColors.danger : DfColors.ok).withValues(alpha: .07),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            Icon(clip != null ? Icons.check_circle : Icons.radio_button_unchecked, size: 18, color: clip != null ? DfColors.ok : DfColors.muted),
-            const SizedBox(width: 6),
+            Container(
+              width: 30,
+              height: 30,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: (recordingThis ? DfColors.danger : (clip != null ? DfColors.ok : DfColors.accent)).withValues(alpha: .13),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Icon(
+                recordingThis ? Icons.fiber_manual_record_rounded : (clip != null ? Icons.check_rounded : Icons.graphic_eq_rounded),
+                size: 16,
+                color: recordingThis ? DfColors.danger : (clip != null ? DfColors.ok : DfColors.secondary),
+              ),
+            ),
+            const SizedBox(width: 9),
             Expanded(
               child: Text(
                 '${text.isEmpty ? 'အသံ ${i + 1} (script မလို)' : 'Chunk ${i + 1} · ${text.length} လုံး'}'
