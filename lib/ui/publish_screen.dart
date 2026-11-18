@@ -209,7 +209,7 @@ class _PublishScreenState extends State<PublishScreen> {
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 8),
-                  Text(_error!, style: const TextStyle(color: DfColors.danger, fontSize: 13)),
+                  PremiumMessage(_error!, error: true),
                 ],
                 const SectionTitle('ခေါင်းစဉ် / description / hashtag'),
                 Row(children: [
