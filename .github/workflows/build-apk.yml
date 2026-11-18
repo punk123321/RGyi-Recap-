@@ -5,6 +5,10 @@ on:
   push:
     branches: [main, 'feature/**', 'claude/**', 'b1']
 
+concurrency:
+  group: rgyi-recap-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
