@@ -105,11 +105,10 @@ class _BackupScreenState extends State<BackupScreen> {
         FilledButton.icon(onPressed: _busy ? null : _backup, icon: const Icon(Icons.save_alt, size: 18), label: const Text('Backup ဖိုင် သိမ်းမယ်')),
         const SectionTitle('Restore'),
         OutlinedButton.icon(onPressed: _busy ? null : _restore, icon: const Icon(Icons.restore, size: 18), label: const Text('Backup ဖိုင်ကနေ ပြန်ယူမယ်')),
-        if (_msg != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 14),
-            child: Text(_msg!, style: TextStyle(color: _err ? DfColors.danger : DfColors.ok, fontSize: 13)),
-          ),
+        if (_msg != null) ...[
+          const SizedBox(height: 12),
+          PremiumMessage(_msg!, error: _err),
+        ],
       ]),
     );
   }
