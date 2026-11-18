@@ -398,8 +398,10 @@ class _SrtSplitScreenState extends State<SrtSplitScreen> {
           icon: const Icon(Icons.movie_creation_outlined, size: 18),
           label: Text('အပိုင်း ${parts.length} ခုလုံး MP4 ထုတ်မယ်'),
         ),
-      if (_msg != null)
-        Padding(padding: const EdgeInsets.only(top: 8), child: Text(_msg!, style: TextStyle(color: _err ? DfColors.danger : DfColors.ok, fontSize: 13))),
+      if (_msg != null) ...[
+        const SizedBox(height: 8),
+        PremiumMessage(_msg!, error: _err),
+      ],
       const SectionTitle('စာတန်းလိုင်းတွေ'),
     ]);
   }
