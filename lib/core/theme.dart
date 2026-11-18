@@ -51,6 +51,47 @@ ThemeData buildTheme() {
       foregroundColor: DfColors.ink,
       elevation: 0,
       scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      centerTitle: false,
+      titleTextStyle: TextStyle(
+        color: DfColors.ink,
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+        letterSpacing: .2,
+        fontFamilyFallback: burmeseFallback,
+      ),
+    ),
+    dividerTheme: const DividerThemeData(
+      color: DfColors.line,
+      thickness: 1,
+      space: 1,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: DfColors.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      titleTextStyle: const TextStyle(
+        color: DfColors.ink,
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+        fontFamilyFallback: burmeseFallback,
+      ),
+      contentTextStyle: const TextStyle(
+        color: DfColors.muted,
+        fontSize: 14,
+        height: 1.5,
+        fontFamilyFallback: burmeseFallback,
+      ),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: DfColors.raise,
+      contentTextStyle: const TextStyle(
+        color: DfColors.ink,
+        fontSize: 13,
+        fontFamilyFallback: burmeseFallback,
+      ),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: DfColors.bg,
