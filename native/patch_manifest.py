@@ -33,8 +33,22 @@ if add:
     s = s[:j] + add + s[j:]
     changed = True
 
+# Set the installed Android app name (launcher label) to the standalone brand.
+app_start = s.index("<application")
+app_end = s.index(">", app_start)
+app_tag = s[app_start:app_end]
+label = 'android:label="RGyi Recap"'
+if 'android:label=' in app_tag:
+    import re
+    updated_tag = re.sub(r'android:label="[^"]*"', label, app_tag)
+else:
+    updated_tag = app_tag + " " + label
+if updated_tag != app_tag:
+    s = s[:app_start] + updated_tag + s[app_end:]
+    changed = True
+
 # Foreground service that keeps a render alive in the background.
-svc = '<service android:name="com.dramaflow.aistudio.RenderService" android:exported="false" android:foregroundServiceType="dataSync"/>'
+svc = '<service android:name="com.rgyi.recap.RenderService" android:exported="false" android:foregroundServiceType="dataSync"/>'
 if "com.dramaflow.aistudio.RenderService" not in s:
     k = s.rindex("</application>")
     s = s[:k] + "    " + svc + "\n    " + s[k:]
