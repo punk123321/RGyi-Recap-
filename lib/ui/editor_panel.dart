@@ -443,6 +443,7 @@ class _EditorPanelState extends State<EditorPanel> {
             child: Text(_error ?? _msg!, style: const TextStyle(fontSize: 13)),
           ),
         _preview(),
+        _timelineOverview(),
         _title('၁။ ဗီဒီယို အပိုင်းများ · ${_t(_tl.videoMs)}'),
         Wrap(spacing: 8, children: [
           OutlinedButton(onPressed: _fromIndex, child: const Text('Video Index က ယူ')),
@@ -674,6 +675,124 @@ class _EditorPanelState extends State<EditorPanel> {
       ),
     );
   }
+
+  /// Premium multi-track overview. Each lane reflects the real edit plan;
+  /// tapping a clip opens the existing editor for that item.
+  Widget _timelineOverview() {
+    final total = _tl.videoMs > 0 ? _tl.videoMs : 1;
+    final voiceCount = _tl.voices.length;
+    final hasMusic = _tl.music != null;
+    return Container(
+      margin: const EdgeInsets.only(top: 8, bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0B0E18),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: DfColors.line),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: .22), blurRadius: 18, offset: const Offset(0, 7)),
+          BoxShadow(color: DfColors.accent.withValues(alpha: .06), blurRadius: 24),
+        ],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          const Icon(Icons.multitrack_audio_rounded, color: DfColors.secondary, size: 19),
+          const SizedBox(width: 8),
+          const Expanded(child: Text('MULTI-TRACK TIMELINE', style: TextStyle(fontSize: 10, letterSpacing: 1.5, fontWeight: FontWeight.w900, color: DfColors.ink))),
+          Text(_t(_tl.videoMs), style: const TextStyle(fontSize: 11, color: DfColors.muted, fontFeatures: [FontFeature.tabularFigures()])),
+        ]),
+        const SizedBox(height: 12),
+        Row(children: [
+          const SizedBox(width: 72),
+          Expanded(child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text('00:00', style: _rulerStyle),
+            Text(_t((total / 2).round()), style: _rulerStyle),
+            Text(_t(total), style: _rulerStyle),
+          ])),
+        ]),
+        const SizedBox(height: 7),
+        _timelineLane('VIDEO', Icons.movie_rounded, DfColors.accent, _tl.pieces.isEmpty
+            ? _emptyTrack('Video Index မှ အပိုင်းများ ထည့်ပါ')
+            : Wrap(spacing: 4, runSpacing: 4, children: [
+                for (var i = 0; i < _tl.pieces.length; i++)
+                  InkWell(
+                    borderRadius: BorderRadius.circular(7),
+                    onTap: () => _editPiece(i),
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 42),
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [DfColors.accent.withValues(alpha: .9), const Color(0xFF5140A8)]),
+                        borderRadius: BorderRadius.circular(7),
+                        border: Border.all(color: _playingPiece == i ? DfColors.secondary : Colors.white.withValues(alpha: .16), width: _playingPiece == i ? 1.5 : 1),
+                      ),
+                      child: Text('CLIP ${i + 1}', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.white)),
+                    ),
+                  ),
+              ])),
+        _timelineLane('VOICE', Icons.graphic_eq_rounded, DfColors.secondary, voiceCount == 0
+            ? _emptyTrack('Narration မထည့်ရသေးပါ')
+            : Wrap(spacing: 4, runSpacing: 4, children: [
+                for (var i = 0; i < voiceCount; i++)
+                  InkWell(
+                    borderRadius: BorderRadius.circular(7),
+                    onTap: () => _voiceOffset(i),
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 42),
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 9),
+                      decoration: BoxDecoration(color: DfColors.secondary.withValues(alpha: .16), borderRadius: BorderRadius.circular(7), border: Border.all(color: DfColors.secondary.withValues(alpha: .42))),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        ...List.generate(5, (n) => Container(margin: const EdgeInsets.only(right: 2), width: 2, height: 5 + ((n * 7 + i * 3) % 10).toDouble(), decoration: BoxDecoration(color: DfColors.secondary, borderRadius: BorderRadius.circular(2)))),
+                        const SizedBox(width: 4),
+                        Text('VO ${i + 1}', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: DfColors.ink)),
+                      ]),
+                    ),
+                  ),
+              ])),
+        _timelineLane('MUSIC', Icons.music_note_rounded, DfColors.pink, !hasMusic
+            ? _emptyTrack('Background music မထည့်ရသေးပါ')
+            : Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                decoration: BoxDecoration(color: DfColors.pink.withValues(alpha: .13), borderRadius: BorderRadius.circular(7), border: Border.all(color: DfColors.pink.withValues(alpha: .42))),
+                child: Row(children: [const Icon(Icons.waves_rounded, size: 15, color: DfColors.pink), const SizedBox(width: 7), Expanded(child: Text(_tl.music!.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: DfColors.ink))), Text('${(_tl.music!.volume * 100).round()}%', style: const TextStyle(fontSize: 9, color: DfColors.muted))]),
+              )),
+        _timelineLane('SUBTITLE', Icons.subtitles_rounded, DfColors.warn, _subs.isEmpty
+            ? _emptyTrack('Subtitle မရှိသေးပါ')
+            : Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                decoration: BoxDecoration(color: DfColors.warn.withValues(alpha: .10), borderRadius: BorderRadius.circular(7), border: Border.all(color: DfColors.warn.withValues(alpha: .35))),
+                child: Row(children: [const Icon(Icons.closed_caption_rounded, size: 15, color: DfColors.warn), const SizedBox(width: 7), Text('${_subs.length} စာကြောင်း', style: const TextStyle(fontSize: 10, color: DfColors.ink)), const Spacer(), Text(_tl.burnSubtitles ? 'BURN ON' : 'BURN OFF', style: const TextStyle(fontSize: 9, color: DfColors.muted, fontWeight: FontWeight.w800))]),
+              )),
+        const SizedBox(height: 8),
+        Row(children: [
+          const Icon(Icons.touch_app_rounded, size: 13, color: DfColors.muted),
+          const SizedBox(width: 5),
+          const Expanded(child: Text('Clip / Voice ကိုနှိပ်ပြီး အသေးစိတ်ပြင်နိုင်သည်', style: TextStyle(fontSize: 10, color: DfColors.muted))),
+          if (_playingPiece != null) const Text('PLAYING', style: TextStyle(fontSize: 9, letterSpacing: 1, color: DfColors.ok, fontWeight: FontWeight.w900)),
+        ]),
+      ]),
+    );
+  }
+
+  static const _rulerStyle = TextStyle(fontSize: 9, color: DfColors.muted, fontFeatures: [FontFeature.tabularFigures()]);
+
+  Widget _emptyTrack(String label) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+    decoration: BoxDecoration(color: DfColors.raise.withValues(alpha: .55), borderRadius: BorderRadius.circular(7), border: Border.all(color: DfColors.line)),
+    child: Text(label, style: const TextStyle(fontSize: 10, color: DfColors.muted)),
+  );
+
+  Widget _timelineLane(String label, IconData icon, Color color, Widget content) => Padding(
+    padding: const EdgeInsets.only(bottom: 7),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+      SizedBox(width: 72, child: Row(children: [Icon(icon, size: 13, color: color), const SizedBox(width: 5), Expanded(child: Text(label, style: TextStyle(fontSize: 8, letterSpacing: .6, fontWeight: FontWeight.w900, color: color), overflow: TextOverflow.ellipsis))])),
+      const SizedBox(width: 7),
+      Expanded(child: content),
+    ]),
+  );
 
   Widget _pieceRow(int i) {
     final p = _tl.pieces[i];
