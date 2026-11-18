@@ -215,8 +215,10 @@ class _VideoRecapScreenState extends State<VideoRecapScreen> {
           const SizedBox(height: 8),
           FilledButton.icon(onPressed: _saveScript, icon: const Icon(Icons.save_alt, size: 18), label: const Text('Narration script အဖြစ် သိမ်း')),
         ],
-        if (_msg != null)
-          Padding(padding: const EdgeInsets.only(top: 12), child: Text(_msg!, style: TextStyle(color: _err ? DfColors.danger : DfColors.ok, fontSize: 13))),
+        if (_msg != null) ...[
+          const SizedBox(height: 12),
+          PremiumMessage(_msg!, error: _err),
+        ],
       ]),
     );
   }
