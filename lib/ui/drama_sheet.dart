@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../data/drama.dart';
 import '../state/library_store.dart';
-import '../core/theme.dart';
 import 'widgets.dart';
 
 /// Bottom sheet to add a drama, or edit one when [existing] is given.
