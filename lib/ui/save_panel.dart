@@ -151,7 +151,6 @@ class _SavePanelState extends State<SavePanel> {
                   TextButton(onPressed: () => _delete(e), child: const Text('ဖျက်')),
                 ]),
               ]),
-            ]),
           ),
       ],
     );
