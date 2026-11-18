@@ -11,6 +11,7 @@ import '../data/handoff_repo.dart';
 import '../data/project.dart';
 import '../platform/audio_channel.dart';
 import '../platform/gemini_open.dart';
+import 'widgets.dart';
 
 /// TE-1: a separate, persisted planning workspace. Actual effect rendering is
 /// added in later TE phases through the existing timeline and Render Center.
