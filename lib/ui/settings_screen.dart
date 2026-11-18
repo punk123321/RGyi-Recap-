@@ -60,7 +60,7 @@ class SettingsScreen extends StatelessWidget {
                 ]),
               ),
               const SizedBox(height: 16),
-              const PremiumMessage('Planned လို့ပြထားတဲ့ Feature တွေကို လက်ရှိ Build မှာ အသုံးပြုလို့မရသေးပါ။ Ready/Beta အခြေအနေတွေကလည်း ဖုန်းပေါ်မှာ စမ်းသပ်အတည်ပြုရန် လိုအပ်နိုင်ပါတယ်။', icon: Icons.info_outline_rounded),
+              const PremiumMessage('Planned လို့ပြထားတဲ့ Feature တွေကို လက်ရှိ Build မှာ အသုံးပြုလို့မရသေးပါ။ Ready/Beta အခြေအနေတွေကလည်း ဖုန်းပေါ်မှာ စမ်းသပ်အတည်ပြုရန် လိုအပ်နိုင်ပါတယ်။', info: true, icon: Icons.info_outline_rounded),
             ],
           );
         },
