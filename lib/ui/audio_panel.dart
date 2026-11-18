@@ -16,6 +16,7 @@ import '../data/project.dart';
 import '../platform/audio_channel.dart';
 import '../platform/gemini_tts_client.dart';
 import 'gemini_panel.dart';
+import 'widgets.dart';
 import '../state/project_store.dart';
 
 /// Stage 3: turn the narration script into audio. Three ways, all local:
@@ -537,16 +538,10 @@ class _AudioPanelState extends State<AudioPanel> {
       children: [
         _status(),
         _audioOverview(chunks.length, haveClips, totalMs),
-        if (_msg != null)
-          Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: (_msgError ? DfColors.danger : DfColors.ok).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(_msg!, style: const TextStyle(fontSize: 13)),
-          ),
+        if (_msg != null) ...[
+          PremiumMessage(_msg!, error: _msgError),
+          const SizedBox(height: 10),
+        ],
         Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
