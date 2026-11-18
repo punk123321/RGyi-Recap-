@@ -647,7 +647,7 @@ class _AudioPanelState extends State<AudioPanel> {
   }
 
   Widget _audioOverview(int total, int done, int totalMs) {
-    final progress = total == 0 ? 0.0 : (done / total).clamp(0.0, 1.0);
+    final double progress = total == 0 ? 0.0 : (done / total).clamp(0.0, 1.0).toDouble();
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
