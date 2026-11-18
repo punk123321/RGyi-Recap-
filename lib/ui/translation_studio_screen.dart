@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../data/project.dart';
 import 'gemini_panel.dart';
+import 'widgets.dart';
 
 enum _TranslationMode { recap, fullSrt }
 
@@ -42,9 +43,10 @@ class _TranslationStudioScreenState extends State<TranslationStudioScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
-            const Text(
-              'ဘာသာပြန်လုပ်ငန်းအမျိုးအစား ရွေးပါ',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            const PremiumSectionHeader(
+              title: 'ဘာသာပြန်လုပ်ငန်းအမျိုးအစား',
+              subtitle: 'Recap ပြောပြစာ သို့မဟုတ် အချိန်မပျက် SRT ဘာသာပြန်',
+              icon: Icons.translate_rounded,
             ),
             const SizedBox(height: 10),
             LayoutBuilder(
@@ -83,13 +85,7 @@ class _TranslationStudioScreenState extends State<TranslationStudioScreen> {
               },
             ),
             const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: DfColors.accent.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: DfColors.accent.withValues(alpha: 0.28)),
-              ),
+            PremiumSurface(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
