@@ -228,14 +228,52 @@ class _TransformativeEditorScreenState extends State<TransformativeEditorScreen>
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+      body: LayoutBuilder(
+        builder: (context, constraints) => Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: constraints.maxWidth >= 1100 ? 1320 : double.infinity),
+            child: ListView(
+        padding: EdgeInsets.fromLTRB(constraints.maxWidth >= 900 ? 28 : 16, 18, constraints.maxWidth >= 900 ? 28 : 16, 32),
         children: [
-          Text(widget.project.name, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 4),
-          const Text(
-            'မူရင်းဗီဒီယိုကို မပြင်ဘဲ ကိုယ်ပိုင်ရှင်းပြချက်၊ အမြင်နဲ့ Editing ပုံစံအသစ် ဖန်တီးရန်',
-            style: TextStyle(color: DfColors.muted),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF30205F), Color(0xFF172D51), DfColors.surface],
+              ),
+              border: Border.all(color: const Color(0xFF9B7BFF).withValues(alpha: .38)),
+              boxShadow: [BoxShadow(color: const Color(0xFF765BFF).withValues(alpha: .12), blurRadius: 28, offset: const Offset(0, 10))],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  const Icon(Icons.movie_filter_rounded, color: Color(0xFF9DECF6), size: 20),
+                  const SizedBox(width: 9),
+                  const Text('TRANSFORMATIVE WORKSPACE', style: TextStyle(color: Color(0xFF9DECF6), fontSize: 9, letterSpacing: 1.5, fontWeight: FontWeight.w900)),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: _dirty ? DfColors.warn.withValues(alpha: .13) : DfColors.ok.withValues(alpha: .13),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: (_dirty ? DfColors.warn : DfColors.ok).withValues(alpha: .35)),
+                    ),
+                    child: Text(_dirty ? 'UNSAVED CHANGES' : 'SAVED', style: TextStyle(color: _dirty ? DfColors.warn : DfColors.ok, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: .7)),
+                  ),
+                ]),
+                const SizedBox(height: 16),
+                Text(widget.project.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
+                const SizedBox(height: 7),
+                const Text(
+                  'မူရင်းဗီဒီယိုကို မပြင်ဘဲ ကိုယ်ပိုင်ရှင်းပြချက်၊ အမြင်နဲ့ Editing ပုံစံအသစ် ဖန်တီးရန်',
+                  style: TextStyle(color: Color(0xFFC4D1E8), height: 1.5, fontSize: 13),
+                ),
+              ],
+            ),
           ),
           if (_plan.fromNewerVersion)
             Container(
@@ -371,6 +409,9 @@ class _TransformativeEditorScreenState extends State<TransformativeEditorScreen>
             style: TextStyle(color: DfColors.muted, fontSize: 12),
           ),
         ],
+            ),
+          ),
+        ),
       ),
     );
   }
