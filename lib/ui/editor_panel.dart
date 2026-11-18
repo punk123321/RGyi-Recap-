@@ -700,26 +700,104 @@ class _EditorPanelState extends State<EditorPanel> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
-        child: Stack(alignment: Alignment.bottomCenter, children: [
-        AspectRatio(aspectRatio: c.value.aspectRatio == 0 ? 16 / 9 : c.value.aspectRatio, child: VideoPlayer(c)),
-        if (sub != null && _tl.burnSubtitles)
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Text(
-              sub,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 15, shadows: [Shadow(blurRadius: 4, color: Colors.black)]),
+        child: Stack(children: [
+          AspectRatio(
+            aspectRatio: c.value.aspectRatio == 0 ? 16 / 9 : c.value.aspectRatio,
+            child: LayoutBuilder(builder: (context, bounds) {
+              final size = Size(bounds.maxWidth, bounds.maxHeight);
+              final style = _tl.style;
+              return Stack(fit: StackFit.expand, children: [
+                VideoPlayer(c),
+                if (sub != null && _tl.burnSubtitles)
+                  Align(
+                    alignment: style.top ? Alignment.topCenter : Alignment.bottomCenter,
+                    child: Padding(
+                      padding: EdgeInsets.all(size.height * .035),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: style.background ? Colors.black.withValues(alpha: .62) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                          child: Text(
+                            sub,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(style.color),
+                              fontSize: (size.height * style.size).clamp(10.0, 42.0),
+                              fontWeight: FontWeight.w700,
+                              height: 1.2,
+                              shadows: const [Shadow(blurRadius: 4, color: Colors.black)],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                for (final item in _tl.corners)
+                  _cornerPreview(item, size),
+                if (_tl.logo != null && _tl.logo!.path.isNotEmpty)
+                  _logoPreview(_tl.logo!, size),
+              ]);
+            }),
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: IconButton.filledTonal(
+              onPressed: _stopPlayback,
+              icon: const Icon(Icons.pause),
+              tooltip: 'ရပ်',
             ),
           ),
-        Positioned(
-          top: 4,
-          right: 4,
-          child: IconButton.filledTonal(onPressed: _stopPlayback, icon: const Icon(Icons.pause), tooltip: 'ရပ်'),
-        ),
         ]),
       ),
     );
   }
+
+  Alignment _cornerAlignment(Corner corner) {
+    switch (corner) {
+      case Corner.topLeft: return Alignment.topLeft;
+      case Corner.topRight: return Alignment.topRight;
+      case Corner.bottomLeft: return Alignment.bottomLeft;
+      case Corner.bottomRight: return Alignment.bottomRight;
+    }
+  }
+
+  Widget _cornerPreview(CornerText item, Size size) => Align(
+    alignment: _cornerAlignment(item.corner),
+    child: Padding(
+      padding: EdgeInsets.all(size.height * .035),
+      child: Text(
+        item.text,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: Color(item.color),
+          fontSize: (size.height * item.size).clamp(9.0, 36.0),
+          fontWeight: FontWeight.w800,
+          shadows: const [Shadow(blurRadius: 4, color: Colors.black), Shadow(blurRadius: 8, color: Colors.black)],
+        ),
+      ),
+    ),
+  );
+
+  Widget _logoPreview(LogoItem logo, Size size) => Align(
+    alignment: _cornerAlignment(logo.corner),
+    child: Padding(
+      padding: EdgeInsets.all(size.height * .035),
+      child: Opacity(
+        opacity: logo.opacity.clamp(.1, 1.0),
+        child: Image.file(
+          File(logo.path),
+          width: size.width * logo.size.clamp(.05, .5),
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+        ),
+      ),
+    ),
+  );
 
   Widget _previewInspector() {
     final index = _selectedPiece;
