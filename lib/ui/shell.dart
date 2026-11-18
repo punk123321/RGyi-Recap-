@@ -42,7 +42,9 @@ class _ShellState extends State<Shell> {
             return Row(
               children: [
                 NavigationRail(
-                  backgroundColor: DfColors.bg,
+                  backgroundColor: Colors.transparent,
+                  minWidth: 76,
+                  minExtendedWidth: 224,
                   useIndicator: true,
                   indicatorColor: DfColors.accent.withValues(alpha: .22),
                   selectedIconTheme: const IconThemeData(color: DfColors.secondary),
@@ -55,9 +57,36 @@ class _ShellState extends State<Shell> {
                   labelType: constraints.maxWidth >= 1200
                       ? NavigationRailLabelType.none
                       : NavigationRailLabelType.all,
-                  leading: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: BrandMark(size: 42),
+                  leading: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const BrandMark(size: 42),
+                        if (constraints.maxWidth >= 1200) ...[
+                          const SizedBox(height: 10),
+                          const Text(
+                            'RGyi RECAP',
+                            style: TextStyle(
+                              color: DfColors.ink,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          const Text(
+                            'AI STUDIO',
+                            style: TextStyle(
+                              color: DfColors.secondary,
+                              fontSize: 8,
+                              letterSpacing: 1.8,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                   destinations: [
                     for (final d in destinations)
