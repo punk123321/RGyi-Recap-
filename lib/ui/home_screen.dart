@@ -78,7 +78,7 @@ const _moduleGroups = <_ModuleGroup>[
   _ModuleGroup('SUBTITLE & VOICE', 'စာတန်းထုတ်ခြင်း၊ ပြင်ဆင်ခြင်းနှင့် အသံဖန်တီးခြင်း', [
     _Module('ST', 'Subtitle Studio', 'SRT ပြင်၊ စစ်', Color(0xFF5B8CFF), 4, _Action.studio),
     _Module('WH', 'Whisper Subtitles', 'အသံမှ SRT အလိုအလျောက်ထုတ်', Color(0xFF62A0EA), 5, _Action.none, 'whisper_transcription'),
-    _Module('TT', 'TTS / MP3', 'အသံ ထုတ်/ဖမ်း', Color(0xFF5B8CFF), 5, _Action.workflow, 'speech_synthesis'),
+    _Module('TT', 'TTS / Audio', 'အသံ ထုတ်/ဖမ်း (WAV / M4A)', Color(0xFF5B8CFF), 5, _Action.workflow, 'speech_synthesis'),
   ]),
   _ModuleGroup('VIDEO PRODUCTION', 'ဗီဒီယိုတည်းဖြတ်ခြင်းနှင့် နောက်ဆုံး Render ထုတ်ခြင်း', [
     _Module('ED', 'Video Editor', 'Timeline', Color(0xFFA46BFF), 6, _Action.workflow),
