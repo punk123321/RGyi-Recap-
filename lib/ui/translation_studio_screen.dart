@@ -47,28 +47,40 @@ class _TranslationStudioScreenState extends State<TranslationStudioScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: _ModeCard(
-                    selected: isRecap,
-                    icon: Icons.auto_stories_rounded,
-                    title: 'Recap Translation',
-                    subtitle: 'ဇာတ်လမ်းပြန်ပြောစာ',
-                    onTap: () => setState(() => _mode = _TranslationMode.recap),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _ModeCard(
-                    selected: !isRecap,
-                    icon: Icons.subtitles_rounded,
-                    title: 'Full SRT Translation',
-                    subtitle: 'စာတန်းအားလုံး အချိန်မပျက်',
-                    onTap: () => setState(() => _mode = _TranslationMode.fullSrt),
-                  ),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 520;
+                final recapCard = _ModeCard(
+                  selected: isRecap,
+                  icon: Icons.auto_stories_rounded,
+                  title: 'Recap Translation',
+                  subtitle: 'ဇာတ်လမ်းပြန်ပြောစာ',
+                  onTap: () => setState(() => _mode = _TranslationMode.recap),
+                );
+                final srtCard = _ModeCard(
+                  selected: !isRecap,
+                  icon: Icons.subtitles_rounded,
+                  title: 'Full SRT Translation',
+                  subtitle: 'စာတန်းအားလုံး အချိန်မပျက်',
+                  onTap: () => setState(() => _mode = _TranslationMode.fullSrt),
+                );
+                if (compact) {
+                  return Column(
+                    children: [
+                      SizedBox(width: double.infinity, child: recapCard),
+                      const SizedBox(height: 10),
+                      SizedBox(width: double.infinity, child: srtCard),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(child: recapCard),
+                    const SizedBox(width: 10),
+                    Expanded(child: srtCard),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 14),
             Container(
