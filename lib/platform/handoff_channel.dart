@@ -16,7 +16,7 @@ enum ShareResult { gemini, chooser, tooLarge }
 /// the normal Android share mechanism, and the user brings the answer back by
 /// copy and paste or by importing a file.
 class HandoffChannel {
-  static const _channel = MethodChannel('com.dramaflow.aistudio/media');
+  static const _channel = MethodChannel('com.rgyi.recap/media');
 
   static Future<ShareResult> share(String text, {bool gemini = true}) async {
     final r = await _channel.invokeMethod<String>('shareText', {'text': text, 'gemini': gemini});
