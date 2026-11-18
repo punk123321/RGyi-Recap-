@@ -413,9 +413,23 @@ class _EditorPanelState extends State<EditorPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'မူရင်းဗီဒီယိုကို မပြင်ပါဘူး။ ဒီမှာ ရွေးထားတာတွေက "ဘယ်လိုထုတ်မလဲ" ဆိုတဲ့ စာရင်းပဲ။ တကယ်ထုတ်တာ အဆင့် ၅ (Render) မှာပါ။',
-          style: TextStyle(color: DfColors.muted, fontSize: 13),
+        _editorHeader(),
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.all(13),
+          decoration: BoxDecoration(
+            color: DfColors.secondary.withValues(alpha: .07),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: DfColors.secondary.withValues(alpha: .20)),
+          ),
+          child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(Icons.info_outline_rounded, color: DfColors.secondary, size: 18),
+            SizedBox(width: 9),
+            Expanded(child: Text(
+              'ဒီ Workspace မှာ Edit Plan ကို စီမံတာဖြစ်ပြီး မူရင်းဗီဒီယိုကို မပြောင်းလဲပါ။ နောက်ဆုံး MP4 ကို Render အဆင့်မှာ ထုတ်ပေးပါတယ်။',
+              style: TextStyle(color: DfColors.muted, fontSize: 12, height: 1.5),
+            )),
+          ]),
         ),
         const SizedBox(height: 8),
         if (_msg != null || _error != null)
@@ -567,9 +581,56 @@ class _EditorPanelState extends State<EditorPanel> {
     );
   }
 
+  Widget _editorHeader() => Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF29234D), Color(0xFF17263D), DfColors.surface],
+          ),
+          border: Border.all(color: DfColors.accent.withValues(alpha: .34)),
+          boxShadow: [
+            BoxShadow(color: DfColors.accent.withValues(alpha: .10), blurRadius: 24, offset: const Offset(0, 9)),
+          ],
+        ),
+        child: Row(children: [
+          Container(
+            width: 46, height: 46,
+            decoration: BoxDecoration(
+              color: DfColors.accent.withValues(alpha: .20),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: DfColors.accent.withValues(alpha: .32)),
+            ),
+            child: const Icon(Icons.movie_edit_rounded, color: DfColors.secondary, size: 25),
+          ),
+          const SizedBox(width: 13),
+          const Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('VIDEO EDITOR', style: TextStyle(fontSize: 10, letterSpacing: 1.8, fontWeight: FontWeight.w900, color: DfColors.secondary)),
+              SizedBox(height: 4),
+              Text('Cinematic Edit Workspace', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: DfColors.ink)),
+              SizedBox(height: 3),
+              Text('Timeline · Voice · Music · Subtitles', style: TextStyle(fontSize: 11, color: DfColors.muted)),
+            ],
+          )),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(color: DfColors.ok.withValues(alpha: .10), borderRadius: BorderRadius.circular(20), border: Border.all(color: DfColors.ok.withValues(alpha: .25))),
+            child: const Text('EDIT', style: TextStyle(fontSize: 9, letterSpacing: 1, color: DfColors.ok, fontWeight: FontWeight.w900)),
+          ),
+        ]),
+      );
+
   Widget _title(String t) => Padding(
-        padding: const EdgeInsets.only(bottom: 6),
-        child: Text(t, style: const TextStyle(fontWeight: FontWeight.w600, color: DfColors.accent)),
+        padding: const EdgeInsets.only(top: 18, bottom: 9),
+        child: Row(children: [
+          Container(width: 3, height: 20, decoration: BoxDecoration(color: DfColors.secondary, borderRadius: BorderRadius.circular(4))),
+          const SizedBox(width: 9),
+          Expanded(child: Text(t, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: DfColors.ink))),
+        ]),
       );
 
   Widget _slider(String label, double v, ValueChanged<double> onEnd, {double min = 0, double max = 1}) =>
@@ -582,13 +643,19 @@ class _EditorPanelState extends State<EditorPanel> {
     }
     if (c == null) return const SizedBox.shrink();
     final sub = _currentSubtitle;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Stack(alignment: Alignment.bottomCenter, children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: AspectRatio(aspectRatio: c.value.aspectRatio == 0 ? 16 / 9 : c.value.aspectRatio, child: VideoPlayer(c)),
-        ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14, top: 10),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: const Color(0xFF05070D),
+        borderRadius: BorderRadius.circular(19),
+        border: Border.all(color: DfColors.line, width: 1.2),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .30), blurRadius: 20, offset: const Offset(0, 8))],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Stack(alignment: Alignment.bottomCenter, children: [
+        AspectRatio(aspectRatio: c.value.aspectRatio == 0 ? 16 / 9 : c.value.aspectRatio, child: VideoPlayer(c)),
         if (sub != null && _tl.burnSubtitles)
           Padding(
             padding: const EdgeInsets.all(10),
@@ -603,7 +670,8 @@ class _EditorPanelState extends State<EditorPanel> {
           right: 4,
           child: IconButton.filledTonal(onPressed: _stopPlayback, icon: const Icon(Icons.pause), tooltip: 'ရပ်'),
         ),
-      ]),
+        ]),
+      ),
     );
   }
 
@@ -612,9 +680,13 @@ class _EditorPanelState extends State<EditorPanel> {
     final playing = _playingPiece == i;
     return Card(
       color: playing ? DfColors.accent.withValues(alpha: 0.12) : DfColors.surface,
-      margin: const EdgeInsets.only(top: 6),
+      margin: const EdgeInsets.only(top: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: playing ? DfColors.accent.withValues(alpha: .65) : DfColors.line),
+      ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 6, 4, 6),
+        padding: const EdgeInsets.fromLTRB(12, 9, 5, 9),
         child: Row(children: [
           Text('${i + 1}', style: const TextStyle(color: DfColors.muted)),
           const SizedBox(width: 10),
