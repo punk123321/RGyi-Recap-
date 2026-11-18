@@ -725,7 +725,7 @@ class _EditorPanelState extends State<EditorPanel> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Color(style.color),
-                              fontSize: (size.height * style.size).clamp(10.0, 42.0),
+                              fontSize: (size.height * style.size).clamp(10.0, 42.0).toDouble(),
                               fontWeight: FontWeight.w700,
                               height: 1.2,
                               shadows: const [Shadow(blurRadius: 4, color: Colors.black)],
@@ -775,7 +775,7 @@ class _EditorPanelState extends State<EditorPanel> {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: Color(item.color),
-          fontSize: (size.height * item.size).clamp(9.0, 36.0),
+          fontSize: (size.height * item.size).clamp(9.0, 36.0).toDouble(),
           fontWeight: FontWeight.w800,
           shadows: const [Shadow(blurRadius: 4, color: Colors.black), Shadow(blurRadius: 8, color: Colors.black)],
         ),
@@ -788,10 +788,10 @@ class _EditorPanelState extends State<EditorPanel> {
     child: Padding(
       padding: EdgeInsets.all(size.height * .035),
       child: Opacity(
-        opacity: logo.opacity.clamp(.1, 1.0),
+        opacity: logo.opacity.clamp(.1, 1.0).toDouble(),
         child: Image.file(
           File(logo.path),
-          width: size.width * logo.size.clamp(.05, .5),
+          width: (size.width * logo.size.clamp(.05, .5)).toDouble(),
           fit: BoxFit.contain,
           errorBuilder: (_, __, ___) => const SizedBox.shrink(),
         ),
