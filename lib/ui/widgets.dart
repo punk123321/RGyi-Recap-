@@ -207,14 +207,15 @@ class PremiumSectionHeader extends StatelessWidget {
 
 /// Consistent state banner for success, progress and validation feedback.
 class PremiumMessage extends StatelessWidget {
-  const PremiumMessage(this.message, {super.key, this.error = false, this.icon});
+  const PremiumMessage(this.message, {super.key, this.error = false, this.info = false, this.icon});
   final String message;
   final bool error;
+  final bool info;
   final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    final color = error ? DfColors.danger : DfColors.ok;
+    final color = error ? DfColors.danger : info ? DfColors.secondary : DfColors.ok;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -223,7 +224,7 @@ class PremiumMessage extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: .28)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon ?? (error ? Icons.warning_amber_rounded : Icons.check_circle_outline_rounded), color: color, size: 18),
+        Icon(icon ?? (error ? Icons.warning_amber_rounded : info ? Icons.info_outline_rounded : Icons.check_circle_outline_rounded), color: color, size: 18),
         const SizedBox(width: 9),
         Expanded(child: Text(message, style: TextStyle(color: DfColors.ink.withValues(alpha: .92), fontSize: 12.5))),
       ]),
