@@ -9,6 +9,7 @@ import '../core/theme.dart';
 import '../data/project.dart';
 import '../platform/video_import.dart';
 import '../state/project_store.dart';
+import 'widgets.dart';
 
 /// Step 1 of the workflow: pick the original video, split it into segments,
 /// and keep the index. The original video file is only read, never changed.
@@ -169,9 +170,15 @@ class _VideoIndexPanelState extends State<VideoIndexPanel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (!p.hasVideo) ...[
-          const Text(
-            'မူရင်း video ကို ရွေးပါ။ ဖိုင်ကို မကူးဘူး၊ မပြင်ဘူး၊ ဘယ်နေရာကရလဲ ဆိုတာပဲ မှတ်ထားပါတယ်။',
-            style: TextStyle(color: DfColors.muted, fontSize: 13),
+          const PremiumSurface(
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.video_file_outlined, color: DfColors.secondary, size: 22),
+              SizedBox(width: 11),
+              Expanded(child: Text(
+                'မူရင်းဗီဒီယိုကို ရွေးပါ။ ဖိုင်ကို မကူးယူ၊ မပြင်ဆင်ဘဲ လမ်းကြောင်းကိုသာ မှတ်ထားပါတယ်။',
+                style: TextStyle(color: DfColors.muted, fontSize: 12.5, height: 1.5),
+              )),
+            ]),
           ),
           const SizedBox(height: 10),
         ] else
@@ -185,7 +192,7 @@ class _VideoIndexPanelState extends State<VideoIndexPanel> {
         ),
         if (_error != null) ...[
           const SizedBox(height: 8),
-          Text(_error!, style: const TextStyle(color: DfColors.danger, fontSize: 13)),
+          PremiumMessage(_error!, error: true),
         ],
         if (p.hasVideo) ...[
           const SizedBox(height: 14),
@@ -224,9 +231,10 @@ class _VideoIndexPanelState extends State<VideoIndexPanel> {
           if (_loading)
             const Center(child: Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator()))
           else ...[
-            Text(
-              _specs.isEmpty ? 'Segment မရှိသေးပါဘူး။' : 'Segment ${_specs.length} ခု',
-              style: const TextStyle(fontWeight: FontWeight.w600),
+            PremiumSectionHeader(
+              title: _specs.isEmpty ? 'Segment မရှိသေးပါ' : 'Segment ${_specs.length} ခု',
+              subtitle: 'အချိန်အပိုင်းတွေကို ပြင်ဆင်၊ ထပ်ထည့်၊ ဖျက်နိုင်ပါတယ်',
+              icon: Icons.view_timeline_outlined,
             ),
             if (hasOverlap(_specs))
               const Padding(
