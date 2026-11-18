@@ -248,11 +248,11 @@ class _StudioHero extends StatelessWidget {
                     const Icon(Icons.bolt_rounded, size: 20, color: Color(0xFFFFD78A)),
                   ]),
                   const SizedBox(height: 23),
-                  Text('Your Story.\\nYour Cinematic Recap.', style: TextStyle(fontSize: wide ? 32 : 28, height: 1.08, fontWeight: FontWeight.w900, letterSpacing: -.8)),
+                  Text('Your Story.\nYour Cinematic Recap.', style: TextStyle(fontSize: wide ? 32 : 28, height: 1.08, fontWeight: FontWeight.w900, letterSpacing: -.8)),
                   const SizedBox(height: 10),
                   const ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: 470),
-                    child: Text('CREATE  •  TRANSLATE  •  NARRATE  •  PRODUCE\\nဗီဒီယိုကနေ နောက်ဆုံး MP4 အထိ Studio တစ်ခုထဲမှာ ဖန်တီးပါ။',
+                    child: Text('CREATE  •  TRANSLATE  •  NARRATE  •  PRODUCE\nဗီဒီယိုကနေ နောက်ဆုံး MP4 အထိ Studio တစ်ခုထဲမှာ ဖန်တီးပါ။',
                       style: TextStyle(fontSize: 11, height: 1.65, letterSpacing: .35, color: Color(0xFFC4D1E8))),
                   ),
                   const SizedBox(height: 21),
