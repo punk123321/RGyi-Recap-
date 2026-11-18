@@ -40,11 +40,11 @@ class _WorkflowScreenState extends State<WorkflowScreen> {
       body: p == null
           ? const Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'Project မရွေးရသေးပါဘူး။ Home မှာ project တစ်ခု ရွေးပါ၊ ဒါမှမဟုတ် အသစ်ဖန်တီးပါ။',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: DfColors.muted),
+                padding: EdgeInsets.all(20),
+                child: PremiumEmptyState(
+                  icon: Icons.account_tree_outlined,
+                  title: 'Project မရွေးရသေးပါ',
+                  description: 'Home မှာ Project တစ်ခုရွေးပါ၊ ဒါမှမဟုတ် Project အသစ်ဖန်တီးပြီး Workflow စတင်ပါ။',
                 ),
               ),
             )
