@@ -7,6 +7,7 @@ import '../core/theme.dart';
 import '../data/handoff_repo.dart';
 import '../data/project.dart';
 import '../platform/handoff_channel.dart';
+import 'widgets.dart';
 
 /// Phase 4: edit subtitles line by line. Works on a copy kept in the
 /// database (documents / studio_srt). The source SRT from Stage 2 is never
@@ -313,15 +314,9 @@ class _SubtitleStudioScreenState extends State<SubtitleStudioScreen> {
                       ]),
                     ),
                     if (_msg != null || _error != null)
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.fromLTRB(16, 6, 16, 0),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: (_error != null ? DfColors.danger : DfColors.ok).withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(_error ?? _msg!, style: const TextStyle(fontSize: 13)),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+                        child: PremiumMessage(_error ?? _msg!, error: _error != null),
                       ),
                     Expanded(
                       child: ListView.builder(
