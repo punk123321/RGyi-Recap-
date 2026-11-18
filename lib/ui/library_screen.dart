@@ -72,13 +72,13 @@ class LibraryScreen extends StatelessWidget {
                   child: list.isEmpty
                       ? Center(
                           child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Text(
-                              store.dramas.isEmpty
-                                  ? 'ဇာတ်လမ်း မရှိသေးပါဘူး။ “ဇာတ်လမ်းအသစ်” ကို နှိပ်ပြီး ထည့်ပါ။'
-                                  : 'ကိုက်ညီတဲ့ ဇာတ်လမ်း မတွေ့ပါဘူး။',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: DfColors.muted),
+                            padding: const EdgeInsets.all(18),
+                            child: PremiumEmptyState(
+                              icon: store.dramas.isEmpty ? Icons.video_library_outlined : Icons.search_off_rounded,
+                              title: store.dramas.isEmpty ? 'Drama မရှိသေးပါ' : 'ရှာဖွေမှုနဲ့ ကိုက်ညီတာ မတွေ့ပါ',
+                              description: store.dramas.isEmpty
+                                  ? 'ဇာတ်လမ်းအသစ်ကို ထည့်ပြီး အပိုင်းတွေကို စီမံနိုင်ပါတယ်။'
+                                  : 'စကားလုံးပြောင်းပြီး ထပ်ရှာကြည့်ပါ။',
                             ),
                           ),
                         )
