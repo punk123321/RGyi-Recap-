@@ -137,7 +137,7 @@ class HomeScreen extends StatelessWidget {
                     itemCount: _modules.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: cols, crossAxisSpacing: 12, mainAxisSpacing: 12,
-                      mainAxisExtent: 142,
+                      mainAxisExtent: 158,
                     ),
                     itemBuilder: (_, i) => _ModuleTile(
                       module: _modules[i], onOpenWorkflow: onOpenWorkflow, onOpenLibrary: onOpenLibrary,
@@ -443,7 +443,6 @@ class _ModuleTile extends StatelessWidget {
       return;
     }
     if (module.action == _Action.backup) {
-      // Works without a project, so a fresh install can restore.
       _push(context, const BackupScreen());
       return;
     }
@@ -502,7 +501,8 @@ class _ModuleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = module.color;
     final capability = capabilityById(module.capabilityId ?? '');
-    final available = capability?.state == CapabilityState.available || (capability == null && module.action != _Action.none);
+    final available = capability?.state == CapabilityState.available ||
+        (capability == null && module.action != _Action.none);
     final status = capability == null
         ? (module.action == _Action.none ? 'COMING SOON' : 'READY')
         : switch (capability.state) {
@@ -511,68 +511,122 @@ class _ModuleTile extends StatelessWidget {
             CapabilityState.planned => 'PLANNED',
             CapabilityState.unavailable => 'OFFLINE',
           };
+    final statusColor = available ? DfColors.ok : DfColors.warn;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [c.withValues(alpha: .28), DfColors.line.withValues(alpha: .55), DfColors.surface]),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            c.withValues(alpha: .48),
+            c.withValues(alpha: .08),
+            DfColors.line.withValues(alpha: .55),
+          ],
+          stops: const [0, .38, 1],
+        ),
         boxShadow: [
-          BoxShadow(color: c.withValues(alpha: .10), blurRadius: 18, offset: const Offset(0, 8)),
-          BoxShadow(color: Colors.black.withValues(alpha: .16), blurRadius: 10, offset: const Offset(0, 5)),
+          BoxShadow(color: c.withValues(alpha: .13), blurRadius: 22, offset: const Offset(0, 9)),
+          BoxShadow(color: Colors.black.withValues(alpha: .18), blurRadius: 12, offset: const Offset(0, 5)),
         ],
       ),
       padding: const EdgeInsets.all(1),
       child: Material(
-        color: DfColors.surface,
+        color: DfColors.surface.withValues(alpha: .97),
         borderRadius: BorderRadius.circular(21),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => _tap(context),
-          child: Stack(children: [
-            Positioned(right: -19, bottom: -26, child: Icon(_moduleIcon(module.code), size: 112, color: c.withValues(alpha: .065))),
-            Positioned(right: 0, top: 0, child: Container(
-              width: 72, height: 72,
-              decoration: BoxDecoration(gradient: RadialGradient(colors: [c.withValues(alpha: .12), Colors.transparent])),
-            )),
-            Padding(
-              padding: const EdgeInsets.all(13),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  Container(
-                    width: 43, height: 43,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [c.withValues(alpha: .28), c.withValues(alpha: .08)]),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: c.withValues(alpha: .52)),
-                      boxShadow: [BoxShadow(color: c.withValues(alpha: .13), blurRadius: 12, offset: const Offset(0, 4))],
-                    ),
-                    child: Icon(_moduleIcon(module.code), color: c, size: 23),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -24,
+                bottom: -31,
+                child: Icon(_moduleIcon(module.code), size: 126, color: c.withValues(alpha: .055)),
+              ),
+              Positioned(
+                right: -18,
+                top: -30,
+                child: Container(
+                  width: 112,
+                  height: 112,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(colors: [c.withValues(alpha: .19), Colors.transparent]),
                   ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: (available ? DfColors.ok : DfColors.warn).withValues(alpha: .10),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: (available ? DfColors.ok : DfColors.warn).withValues(alpha: .22)),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 13, 13, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 45,
+                          height: 45,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [c.withValues(alpha: .32), c.withValues(alpha: .07)],
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: c.withValues(alpha: .48)),
+                            boxShadow: [BoxShadow(color: c.withValues(alpha: .16), blurRadius: 14, offset: const Offset(0, 5))],
+                          ),
+                          child: Icon(_moduleIcon(module.code), color: c, size: 24),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: .10),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: statusColor.withValues(alpha: .25)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(width: 5, height: 5, decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle)),
+                              const SizedBox(width: 5),
+                              Text(status, style: TextStyle(fontSize: 7, letterSpacing: .55, fontWeight: FontWeight.w900, color: statusColor)),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    child: Text(status, style: TextStyle(fontSize: 7, letterSpacing: .55, fontWeight: FontWeight.w900, color: available ? DfColors.ok : DfColors.warn)),
-                  ),
-                ]),
-                const Spacer(),
-                Text(module.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: .05)),
-                const SizedBox(height: 4),
-                Text(module.sub, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: DfColors.muted, fontSize: 9)),
-                const SizedBox(height: 9),
-                Row(children: [
-                  Container(width: 18, height: 2, decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(2))),
-                  const SizedBox(width: 7),
-                  Text('OPEN MODULE', style: TextStyle(color: c, fontSize: 8, letterSpacing: 1, fontWeight: FontWeight.w900)),
-                  const Spacer(),
-                  Icon(Icons.arrow_outward_rounded, size: 14, color: c),
-                ]),
-              ]),
-            ),
-          ]),
+                    const Spacer(),
+                    Text(
+                      module.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12, height: 1.25, fontWeight: FontWeight.w900, letterSpacing: .05),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      module.sub,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: DfColors.muted, fontSize: 9, height: 1.3),
+                    ),
+                    const SizedBox(height: 9),
+                    Row(
+                      children: [
+                        Container(width: 20, height: 2, decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(2))),
+                        const SizedBox(width: 7),
+                        Text('OPEN MODULE', style: TextStyle(color: c, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                        const Spacer(),
+                        Icon(Icons.arrow_forward_rounded, color: c.withValues(alpha: .85), size: 15),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
