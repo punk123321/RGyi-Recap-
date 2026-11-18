@@ -16,6 +16,7 @@ import '../data/project.dart';
 import '../platform/render_channel.dart';
 import '../state/project_store.dart';
 import '../state/render_store.dart';
+import 'widgets.dart';
 
 String _mb(int bytes) => '${(bytes / 1048576).toStringAsFixed(bytes < 10485760 ? 1 : 0)} MB';
 
@@ -134,9 +135,15 @@ class _RenderPanelState extends State<RenderPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'Stage 4 မှာ စီစဉ်ထားတာကို MP4 အသစ်အဖြစ် ထုတ်မယ်။ မူရင်းဗီဒီယိုကို မထိပါဘူး။ ထုတ်နေတုန်း app ကို ဖွင့်ထားပါ (screen ကို ဖွင့်ထားပေးမယ်)။',
-          style: TextStyle(color: DfColors.muted, fontSize: 13),
+        const PremiumSurface(
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(Icons.movie_creation_outlined, color: DfColors.secondary, size: 22),
+            SizedBox(width: 11),
+            Expanded(child: Text(
+              'စီစဉ်ထားတဲ့ Timeline ကို MP4 အသစ်အဖြစ် ထုတ်ပါမယ်။ မူရင်းဗီဒီယိုကို မပြင်ပါဘူး။ Render လုပ်နေချိန်မှာ Notification ကနေ အခြေအနေကို စောင့်ကြည့်နိုင်ပါတယ်။',
+              style: TextStyle(color: DfColors.muted, fontSize: 12.5, height: 1.5),
+            )),
+          ]),
         ),
         const SizedBox(height: 10),
         _renderOverview(dur, est, blockers.length, mine, rs.percent),
@@ -257,14 +264,14 @@ class _RenderPanelState extends State<RenderPanel> {
             child: Text('⚠ နေရာ မလောက်နိုင်ပါ။ ဖိုင်တွေ ဖျက်ပါ ဒါမှမဟုတ် 720p ရွေးပါ။', style: TextStyle(color: DfColors.warn, fontSize: 13)),
           ),
         const SizedBox(height: 10),
-        for (final b in blockers) Text('✗ $b', style: const TextStyle(color: DfColors.danger, fontSize: 13)),
-        if (rs.error != null)
-          Container(
-            margin: const EdgeInsets.only(top: 6, bottom: 6),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: DfColors.danger.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-            child: Text(rs.error!, style: const TextStyle(fontSize: 13)),
-          ),
+        for (final b in blockers) ...[
+          PremiumMessage(b, error: true, icon: Icons.block_rounded),
+          const SizedBox(height: 6),
+        ],
+        if (rs.error != null) ...[
+          const SizedBox(height: 6),
+          PremiumMessage(rs.error!, error: true),
+        ],
         if (rs.canceled && !rs.running)
           const Padding(padding: EdgeInsets.only(top: 6), child: Text('Render ကို ရပ်လိုက်ပါပြီ။ ဖိုင်အပျက် မကျန်ပါ။', style: TextStyle(fontSize: 13))),
         const SizedBox(height: 8),
