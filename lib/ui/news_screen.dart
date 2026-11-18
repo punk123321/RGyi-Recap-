@@ -280,7 +280,10 @@ class _NewsStoryScreenState extends State<NewsStoryScreen> {
               OutlinedButton(onPressed: _paste, child: const Text('Paste')),
               FilledButton.icon(onPressed: _busy ? null : _makeProject, icon: const Icon(Icons.movie_creation_outlined, size: 18), label: const Text('Project ဖန်တီး + script သိမ်း')),
             ]),
-            if (_msg != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_msg!, style: TextStyle(color: _err ? DfColors.danger : DfColors.ok, fontSize: 13))),
+            if (_msg != null) ...[
+              const SizedBox(height: 12),
+              PremiumMessage(_msg!, error: _err),
+            ],
             const SizedBox(height: 24),
           ]),
         ),
