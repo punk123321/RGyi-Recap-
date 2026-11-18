@@ -10,6 +10,7 @@ import '../platform/render_channel.dart';
 import '../state/project_store.dart';
 import '../state/render_store.dart';
 import 'render_panel.dart' show showVideoPreview;
+import 'widgets.dart';
 
 /// Stage 6: put a finished video in the phone's gallery or a folder, and keep
 /// the export history.
@@ -120,26 +121,22 @@ class _SavePanelState extends State<SavePanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (_msg != null)
-          Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: (_error ? DfColors.danger : DfColors.ok).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(_msg!, style: const TextStyle(fontSize: 13)),
-          ),
+        if (_msg != null) ...[
+          PremiumMessage(_msg!, error: _error),
+          const SizedBox(height: 10),
+        ],
         Align(alignment: Alignment.centerLeft, child: TextButton(onPressed: _load, child: const Text('စာရင်း ပြန်ယူ'))),
         if (_items.isEmpty)
-          const Text('ထုတ်ပြီးသား ဗီဒီယို မရှိသေးပါ။ အဆင့် ၅ မှာ အရင်ထုတ်ပါ။', style: TextStyle(color: DfColors.muted, fontSize: 13)),
+          const PremiumEmptyState(
+            icon: Icons.video_library_outlined,
+            title: 'Export မရှိသေးပါ',
+            description: 'Render အဆင့်မှာ MP4 ထုတ်ပြီးရင် ဒီနေရာမှာ ကြည့်ရှု၊ Gallery ထဲသိမ်းဆည်းနိုင်ပါတယ်။',
+          ),
         for (final e in _items)
-          Card(
-            color: DfColors.surface,
-            margin: const EdgeInsets.only(bottom: 8),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          PremiumSurface(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(14),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(e.name, style: const TextStyle(fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
                 Text(
                   '${e.height}p · ${(e.durationMs ~/ 60000).toString().padLeft(2, '0')}:${((e.durationMs ~/ 1000) % 60).toString().padLeft(2, '0')} · '
@@ -154,7 +151,7 @@ class _SavePanelState extends State<SavePanel> {
                   TextButton(onPressed: () => _delete(e), child: const Text('ဖျက်')),
                 ]),
               ]),
-            ),
+            ]),
           ),
       ],
     );
