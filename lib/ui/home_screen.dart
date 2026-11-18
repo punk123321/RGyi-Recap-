@@ -524,8 +524,6 @@ class _ModuleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = module.color;
     final capability = capabilityById(module.capabilityId ?? '');
-    final available = capability?.state == CapabilityState.available ||
-        (capability == null && module.action != _Action.none);
     final status = capability == null
         ? (module.action == _Action.none ? 'COMING SOON' : 'READY')
         : switch (capability.state) {
