@@ -394,10 +394,8 @@ class _TransformativeEditorScreenState extends State<TransformativeEditorScreen>
             ),
           ),
           const SizedBox(height: 12),
-          if (_message != null)
-            Text(_message!, style: const TextStyle(color: DfColors.ok)),
-          if (_error != null)
-            Text(_error!, style: const TextStyle(color: DfColors.danger)),
+          if (_message != null) PremiumMessage(_message!),
+          if (_error != null) PremiumMessage(_error!, error: true),
           FilledButton.icon(
             onPressed: _saving ? null : _save,
             icon: const Icon(Icons.save_outlined),
