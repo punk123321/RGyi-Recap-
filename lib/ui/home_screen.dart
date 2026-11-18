@@ -186,7 +186,7 @@ class _LivePill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
     decoration: BoxDecoration(color: DfColors.ok.withValues(alpha: .10), borderRadius: BorderRadius.circular(30), border: Border.all(color: DfColors.ok.withValues(alpha: .3))),
-    child: const Row(children: [Icon(Icons.circle, size: 7, color: DfColors.ok), SizedBox(width: 7), Text('STUDIO READY', style: TextStyle(fontSize: 10, letterSpacing: 1, color: DfColors.ok, fontWeight: FontWeight.w800))]),
+    child: const Row(children: [Icon(Icons.circle, size: 7, color: DfColors.ok), SizedBox(width: 7), Text('WORKSPACE ACTIVE', style: TextStyle(fontSize: 10, letterSpacing: 1, color: DfColors.ok, fontWeight: FontWeight.w800))]),
   );
 }
 
@@ -534,7 +534,14 @@ class _ModuleTile extends StatelessWidget {
             CapabilityState.planned => 'PLANNED',
             CapabilityState.unavailable => 'OFFLINE',
           };
-    final statusColor = available ? DfColors.ok : DfColors.warn;
+    final statusColor = capability == null
+        ? (module.action == _Action.none ? DfColors.warn : DfColors.ok)
+        : switch (capability.state) {
+            CapabilityState.available => DfColors.ok,
+            CapabilityState.partial => DfColors.secondary,
+            CapabilityState.planned => DfColors.warn,
+            CapabilityState.unavailable => DfColors.danger,
+          };
 
     return Container(
       decoration: BoxDecoration(
