@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../data/drama.dart';
 import '../state/library_store.dart';
+import '../core/theme.dart';
+import 'widgets.dart';
 
 /// Bottom sheet to add a drama, or edit one when [existing] is given.
 Future<void> showDramaSheet(BuildContext context, {Drama? existing}) {
@@ -68,7 +70,9 @@ class _DramaSheetState extends State<_DramaSheet> {
     return Padding(
       padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.of(context).viewInsets.bottom),
       child: SingleChildScrollView(
-        child: Column(
+        child: PremiumSurface(
+          padding: const EdgeInsets.all(18),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -103,11 +107,12 @@ class _DramaSheetState extends State<_DramaSheet> {
             ),
             if (_error != null) ...[
               const SizedBox(height: 8),
-              Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              PremiumMessage(_error!, error: true),
             ],
             const SizedBox(height: 16),
             FilledButton(onPressed: _submit, child: const Text('သိမ်းမယ်')),
           ],
+          ),
         ),
       ),
     );
