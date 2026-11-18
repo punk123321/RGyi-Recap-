@@ -95,7 +95,9 @@ const _moduleGroups = <_ModuleGroup>[
     _Module('TE', 'Transformative Editor', 'Manual · AI · Hybrid', Color(0xFF00C2A8), 9, _Action.transformative),
     _Module('NW', 'သတင်း (RSS)', 'သတင်းဖတ်၊ script ရေး', Color(0xFF2FA8FF), 14, _Action.news),
   ]),
-]; extends StatelessWidget {
+];
+
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.onOpenWorkflow, required this.onOpenLibrary});
   final VoidCallback onOpenWorkflow;
   final VoidCallback onOpenLibrary;
