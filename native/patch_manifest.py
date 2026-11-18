@@ -49,7 +49,7 @@ if updated_tag != app_tag:
 
 # Foreground service that keeps a render alive in the background.
 svc = '<service android:name="com.rgyi.recap.RenderService" android:exported="false" android:foregroundServiceType="dataSync"/>'
-if "com.dramaflow.aistudio.RenderService" not in s:
+if "com.rgyi.recap.RenderService" not in s:
     k = s.rindex("</application>")
     s = s[:k] + "    " + svc + "\n    " + s[k:]
     changed = True
