@@ -45,6 +45,7 @@ class _EditorPanelState extends State<EditorPanel> {
   VideoPlayerController? _vc;
   String? _previewError;
   int? _playingPiece;
+  int? _selectedPiece;
   bool _playAll = false;
   bool _switching = false;
   int _posMs = 0;
@@ -138,6 +139,7 @@ class _EditorPanelState extends State<EditorPanel> {
     _switching = true;
     _playAll = all;
     _playingPiece = i;
+    _selectedPiece = i;
     await c.seekTo(Duration(milliseconds: _tl.pieces[i].startMs));
     await c.play();
     _switching = false;
@@ -226,6 +228,7 @@ class _EditorPanelState extends State<EditorPanel> {
   }
 
   Future<void> _editPiece(int i) async {
+    if (mounted) setState(() => _selectedPiece = i);
     final p = _tl.pieces[i];
     final r = await _askRange(p.startMs, p.endMs);
     if (r == null) return;
@@ -444,6 +447,7 @@ class _EditorPanelState extends State<EditorPanel> {
           ),
         _previewControls(),
         _preview(),
+        _previewInspector(),
         _timelineOverview(),
         _title('၁။ ဗီဒီယို အပိုင်းများ · ${_t(_tl.videoMs)}'),
         Wrap(spacing: 8, children: [
@@ -717,6 +721,71 @@ class _EditorPanelState extends State<EditorPanel> {
     );
   }
 
+  Widget _previewInspector() {
+    final index = _selectedPiece;
+    final valid = index != null && index >= 0 && index < _tl.pieces.length;
+    final piece = valid ? _tl.pieces[index] : null;
+    final duration = _vc?.value.duration.inMilliseconds ?? _sourceMs;
+    final max = duration > 0 ? duration.toDouble() : 1.0;
+    final position = _posMs.clamp(0, max.round()).toDouble();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: DfColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: DfColors.accent.withValues(alpha: .28)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          const Icon(Icons.tune_rounded, color: DfColors.secondary, size: 18),
+          const SizedBox(width: 7),
+          const Expanded(child: Text('PREVIEW INSPECTOR', style: TextStyle(fontSize: 10, letterSpacing: 1.2, fontWeight: FontWeight.w900))),
+          Text('${_t(_posMs)}', style: const TextStyle(fontSize: 11, color: DfColors.secondary, fontFeatures: [FontFeature.tabularFigures()])),
+        ]),
+        Slider(
+          min: 0,
+          max: max,
+          value: position,
+          onChanged: (v) => setState(() => _posMs = v.round()),
+          onChangeEnd: _seekTimeline,
+        ),
+        Row(children: [
+          const Icon(Icons.movie_filter_rounded, size: 16, color: DfColors.accent),
+          const SizedBox(width: 6),
+          Expanded(child: Text(
+            piece == null ? 'Clip မရွေးရသေးပါ' : 'CLIP ${index! + 1}  ·  ${_t(piece.startMs)} – ${_t(piece.endMs)}',
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+            overflow: TextOverflow.ellipsis,
+          )),
+          if (piece != null)
+            TextButton(
+              onPressed: () => _playPiece(index!),
+              child: const Text('ဒီ Clip ▶', style: TextStyle(fontSize: 11)),
+            ),
+        ]),
+        const SizedBox(height: 5),
+        Wrap(spacing: 7, runSpacing: 7, children: [
+          OutlinedButton.icon(
+            onPressed: valid ? () => _editPiece(index!) : null,
+            icon: const Icon(Icons.content_cut_rounded, size: 16),
+            label: const Text('Trim / အချိန်ပြင်'),
+          ),
+          FilledButton.tonalIcon(
+            onPressed: valid ? () => _splitHere(index!) : null,
+            icon: const Icon(Icons.call_split_rounded, size: 16),
+            label: const Text('ဒီနေရာမှာ Split'),
+          ),
+        ]),
+        const Text(
+          'Preview ကိုရွှေ့ပြီး ပြင်လိုတဲ့နေရာမှာ ရပ်ပါ။ ရွေးထားတဲ့ Clip ကို Trim သို့မဟုတ် Split လုပ်နိုင်ပါတယ်။',
+          style: TextStyle(fontSize: 10, color: DfColors.muted, height: 1.4),
+        ),
+      ]),
+    );
+  }
+
   /// Premium multi-track overview. Each lane reflects the real edit plan;
   /// tapping a clip opens the existing editor for that item.
   Future<void> _seekTimeline(double value) async {
@@ -797,7 +866,7 @@ class _EditorPanelState extends State<EditorPanel> {
                         padding: const EdgeInsets.only(right: 4),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(7),
-                          onTap: () => _editPiece(i),
+                          onTap: () { setState(() => _selectedPiece = i); _editPiece(i); },
                           child: Container(
                             width: width,
                             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
