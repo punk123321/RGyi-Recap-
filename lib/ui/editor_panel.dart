@@ -786,42 +786,62 @@ class _EditorPanelState extends State<EditorPanel> {
         const SizedBox(height: 7),
         _timelineLane('VIDEO', Icons.movie_rounded, DfColors.accent, _tl.pieces.isEmpty
             ? _emptyTrack('Video Index မှ အပိုင်းများ ထည့်ပါ')
-            : Wrap(spacing: 4, runSpacing: 4, children: [
-                for (var i = 0; i < _tl.pieces.length; i++)
-                  InkWell(
-                    borderRadius: BorderRadius.circular(7),
-                    onTap: () => _editPiece(i),
-                    child: Container(
-                      constraints: const BoxConstraints(minWidth: 42),
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [DfColors.accent.withValues(alpha: .9), const Color(0xFF5140A8)]),
-                        borderRadius: BorderRadius.circular(7),
-                        border: Border.all(color: _playingPiece == i ? DfColors.secondary : Colors.white.withValues(alpha: .16), width: _playingPiece == i ? 1.5 : 1),
-                      ),
-                      child: Text('CLIP ${i + 1}', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.white)),
-                    ),
-                  ),
-              ])),
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(children: [
+                  for (var i = 0; i < _tl.pieces.length; i++)
+                    Builder(builder: (context) {
+                      final piece = _tl.pieces[i];
+                      final width = (piece.lengthMs / total * 520).clamp(48.0, 520.0).toDouble();
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(7),
+                          onTap: () => _editPiece(i),
+                          child: Container(
+                            width: width,
+                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(colors: [DfColors.accent.withValues(alpha: .9), const Color(0xFF5140A8)]),
+                              borderRadius: BorderRadius.circular(7),
+                              border: Border.all(color: _playingPiece == i ? DfColors.secondary : Colors.white.withValues(alpha: .16), width: _playingPiece == i ? 1.5 : 1),
+                            ),
+                            child: Text('CLIP ${i + 1} · ${_t(piece.lengthMs)}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.white)),
+                          ),
+                        ),
+                      );
+                    }),
+                ]),
+              )),
         _timelineLane('VOICE', Icons.graphic_eq_rounded, DfColors.secondary, voiceCount == 0
             ? _emptyTrack('Narration မထည့်ရသေးပါ')
-            : Wrap(spacing: 4, runSpacing: 4, children: [
-                for (var i = 0; i < voiceCount; i++)
-                  InkWell(
-                    borderRadius: BorderRadius.circular(7),
-                    onTap: () => _voiceOffset(i),
-                    child: Container(
-                      constraints: const BoxConstraints(minWidth: 42),
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 9),
-                      decoration: BoxDecoration(color: DfColors.secondary.withValues(alpha: .16), borderRadius: BorderRadius.circular(7), border: Border.all(color: DfColors.secondary.withValues(alpha: .42))),
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        ...List.generate(5, (n) => Container(margin: const EdgeInsets.only(right: 2), width: 2, height: 5 + ((n * 7 + i * 3) % 10).toDouble(), decoration: BoxDecoration(color: DfColors.secondary, borderRadius: BorderRadius.circular(2)))),
-                        const SizedBox(width: 4),
-                        Text('VO ${i + 1}', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: DfColors.ink)),
-                      ]),
-                    ),
-                  ),
-              ])),
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(children: [
+                  for (var i = 0; i < voiceCount; i++)
+                    Builder(builder: (context) {
+                      final voice = _tl.voices[i];
+                      final width = (voice.durationMs / total * 520).clamp(48.0, 520.0).toDouble();
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(7),
+                          onTap: () => _voiceOffset(i),
+                          child: Container(
+                            width: width,
+                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 9),
+                            decoration: BoxDecoration(color: DfColors.secondary.withValues(alpha: .16), borderRadius: BorderRadius.circular(7), border: Border.all(color: DfColors.secondary.withValues(alpha: .42))),
+                            child: Row(children: [
+                              ...List.generate(5, (n) => Container(margin: const EdgeInsets.only(right: 2), width: 2, height: 5 + ((n * 7 + i * 3) % 10).toDouble(), decoration: BoxDecoration(color: DfColors.secondary, borderRadius: BorderRadius.circular(2)))),
+                              const SizedBox(width: 5),
+                              Expanded(child: Text('VOICE ${i + 1} · ${_t(voice.durationMs)}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: DfColors.ink))),
+                            ]),
+                          ),
+                        ),
+                      );
+                    }),
+                ]),
+              )),
         _timelineLane('MUSIC', Icons.music_note_rounded, DfColors.pink, !hasMusic
             ? _emptyTrack('Background music မထည့်ရသေးပါ')
             : Container(
