@@ -839,19 +839,19 @@ class _EditorPanelState extends State<EditorPanel> {
           )),
           if (piece != null)
             TextButton(
-              onPressed: () => _playPiece(index),
+              onPressed: () => _playPiece(index!),
               child: const Text('ဒီ Clip ▶', style: TextStyle(fontSize: 11)),
             ),
         ]),
         const SizedBox(height: 5),
         Wrap(spacing: 7, runSpacing: 7, children: [
           OutlinedButton.icon(
-            onPressed: valid ? () => _editPiece(index) : null,
+            onPressed: valid ? () => _editPiece(index!) : null,
             icon: const Icon(Icons.content_cut_rounded, size: 16),
             label: const Text('Trim / အချိန်ပြင်'),
           ),
           FilledButton.tonalIcon(
-            onPressed: valid ? () => _splitHere(index) : null,
+            onPressed: valid ? () => _splitHere(index!) : null,
             icon: const Icon(Icons.call_split_rounded, size: 16),
             label: const Text('ဒီနေရာမှာ Split'),
           ),
