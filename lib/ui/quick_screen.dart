@@ -204,11 +204,10 @@ class _QuickScreenState extends State<QuickScreen> {
           icon: const Icon(Icons.check, size: 18),
           label: const Text('ပြင်ဆင်မယ်'),
         ),
-        if (_msg != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(_msg!, style: TextStyle(color: _err ? DfColors.danger : DfColors.ok, fontSize: 13)),
-          ),
+        if (_msg != null) ...[
+          const SizedBox(height: 8),
+          PremiumMessage(_msg!, error: _err),
+        ],
         if (_prepared > 0) ...[
           const SectionTitle('၄။ ဗီဒီယို ထုတ်'),
           const Text('Ratio (9:16 စသည်)၊ Platform preset၊ ၈ စက္ကန့် စမ်းထုတ်တာတွေလည်း ဒီမှာ ရွေးလို့ရတယ်။', style: TextStyle(color: DfColors.muted, fontSize: 12.5)),
