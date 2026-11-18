@@ -139,6 +139,7 @@ class _RenderPanelState extends State<RenderPanel> {
           style: TextStyle(color: DfColors.muted, fontSize: 13),
         ),
         const SizedBox(height: 10),
+        _renderOverview(dur, est, blockers.length, mine, rs.percent),
         _row('အရှည်', dur > 0 ? _dur(dur) : '—'),
         _row('အပိုင်း', '${_tl.pieces.length}'),
         if (te.applied.isNotEmpty) _row('TE operation', '${te.applied.length} ခု ပါမယ်'),
@@ -317,6 +318,82 @@ class _RenderPanelState extends State<RenderPanel> {
       ],
     );
   }
+
+  Widget _renderOverview(int durationMs, int estimatedBytes, int blockerCount, bool rendering, int percent) {
+    final progress = (percent.clamp(0, 100) / 100).toDouble();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF242044), Color(0xFF17283C), DfColors.surface],
+        ),
+        border: Border.all(color: DfColors.accent.withValues(alpha: .30)),
+        boxShadow: [
+          BoxShadow(color: DfColors.accent.withValues(alpha: .08), blurRadius: 22, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: DfColors.secondary.withValues(alpha: .15),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(Icons.movie_filter_rounded, color: DfColors.secondary, size: 23),
+          ),
+          const SizedBox(width: 11),
+          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('FINAL PRODUCTION', style: TextStyle(fontSize: 9, letterSpacing: 1.6, fontWeight: FontWeight.w900, color: DfColors.secondary)),
+            SizedBox(height: 3),
+            Text('Render Studio', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: DfColors.ink)),
+          ])),
+          Text(rendering ? '$percent%' : (blockerCount == 0 ? 'READY' : 'CHECK'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: rendering ? DfColors.secondary : (blockerCount == 0 ? DfColors.ok : DfColors.warn))),
+        ]),
+        const SizedBox(height: 14),
+        if (rendering) ...[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: DfColors.line,
+              valueColor: const AlwaysStoppedAnimation<Color>(DfColors.secondary),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        Row(children: [
+          _renderMetric('OUTPUT', durationMs > 0 ? _dur(durationMs) : '—', DfColors.secondary),
+          const SizedBox(width: 8),
+          _renderMetric('EST. SIZE', estimatedBytes > 0 ? _mb(estimatedBytes) : '—', DfColors.pink),
+          const SizedBox(width: 8),
+          _renderMetric('CHECKS', blockerCount == 0 ? 'ALL CLEAR' : '$blockerCount ISSUE', blockerCount == 0 ? DfColors.ok : DfColors.warn),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _renderMetric(String label, String value, Color color) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 9),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: .16),
+            borderRadius: BorderRadius.circular(11),
+            border: Border.all(color: color.withValues(alpha: .20)),
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 8, letterSpacing: .7, fontWeight: FontWeight.w900, color: color)),
+            const SizedBox(height: 4),
+            Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: DfColors.ink)),
+          ]),
+        ),
+      );
 
   Widget _row(String a, String b) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
