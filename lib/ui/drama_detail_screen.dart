@@ -257,7 +257,7 @@ class _EpisodeDialogState extends State<_EpisodeDialog> {
             ),
             if (_error != null) ...[
               const SizedBox(height: 8),
-              Text(_error!, style: const TextStyle(color: DfColors.danger, fontSize: 13)),
+              PremiumMessage(_error!, error: true),
             ],
           ],
         ),
