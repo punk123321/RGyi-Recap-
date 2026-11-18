@@ -604,7 +604,7 @@ class _EditorPanelState extends State<EditorPanel> {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: DfColors.accent.withValues(alpha: .32)),
             ),
-            child: const Icon(Icons.movie_edit_rounded, color: DfColors.secondary, size: 25),
+            child: const Icon(Icons.movie_creation_rounded, color: DfColors.secondary, size: 25),
           ),
           const SizedBox(width: 13),
           const Expanded(child: Column(
@@ -678,6 +678,16 @@ class _EditorPanelState extends State<EditorPanel> {
 
   /// Premium multi-track overview. Each lane reflects the real edit plan;
   /// tapping a clip opens the existing editor for that item.
+  Future<void> _seekTimeline(double value) async {
+    final target = value.round();
+    setState(() => _posMs = target);
+    if (_vc == null && !await _ensurePlayer()) return;
+    final c = _vc;
+    if (c == null) return;
+    await c.seekTo(Duration(milliseconds: target));
+    if (mounted) setState(() {});
+  }
+
   Widget _timelineOverview() {
     final total = _tl.videoMs > 0 ? _tl.videoMs : 1;
     final voiceCount = _tl.voices.length;
@@ -709,6 +719,28 @@ class _EditorPanelState extends State<EditorPanel> {
             Text(_t((total / 2).round()), style: _rulerStyle),
             Text(_t(total), style: _rulerStyle),
           ])),
+        ]),
+        const SizedBox(height: 7),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 3,
+            activeTrackColor: DfColors.secondary,
+            inactiveTrackColor: DfColors.line,
+            thumbColor: DfColors.ink,
+            overlayColor: DfColors.secondary.withValues(alpha: .12),
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
+          ),
+          child: Slider(
+            min: 0,
+            max: (total).toDouble(),
+            value: _posMs.clamp(0, total).toDouble(),
+            onChanged: (v) => setState(() => _posMs = v.round()),
+            onChangeEnd: _seekTimeline,
+          ),
+        ),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text(_t(_posMs), style: const TextStyle(fontSize: 9, color: DfColors.secondary, fontFeatures: [FontFeature.tabularFigures()])),
+          Text('PLAYHEAD', style: TextStyle(fontSize: 8, letterSpacing: 1.1, color: DfColors.secondary.withValues(alpha: .8), fontWeight: FontWeight.w900)),
         ]),
         const SizedBox(height: 7),
         _timelineLane('VIDEO', Icons.movie_rounded, DfColors.accent, _tl.pieces.isEmpty
