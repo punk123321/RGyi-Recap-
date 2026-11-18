@@ -442,6 +442,7 @@ class _EditorPanelState extends State<EditorPanel> {
             ),
             child: Text(_error ?? _msg!, style: const TextStyle(fontSize: 13)),
           ),
+        _previewControls(),
         _preview(),
         _timelineOverview(),
         _title('၁။ ဗီဒီယို အပိုင်းများ · ${_t(_tl.videoMs)}'),
@@ -636,6 +637,46 @@ class _EditorPanelState extends State<EditorPanel> {
 
   Widget _slider(String label, double v, ValueChanged<double> onEnd, {double min = 0, double max = 1}) =>
       _Vol(label: label, value: v, onEnd: onEnd, min: min, max: max);
+
+  Widget _previewControls() {
+    final ready = _vc != null;
+    final playing = _vc?.value.isPlaying ?? false;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      child: Row(children: [
+        Expanded(
+          child: FilledButton.icon(
+            onPressed: ready ? null : () async { await _ensurePlayer(); },
+            icon: Icon(ready ? Icons.check_circle_rounded : Icons.monitor_rounded, size: 17),
+            label: Text(ready ? 'PREVIEW READY' : 'OPEN PREVIEW'),
+          ),
+        ),
+        const SizedBox(width: 7),
+        IconButton.filledTonal(
+          tooltip: playing ? 'Pause' : 'Play',
+          onPressed: !ready ? null : () async {
+            final c = _vc!;
+            if (c.value.isPlaying) {
+              await c.pause();
+              if (mounted) setState(() {});
+            } else if (_tl.pieces.isNotEmpty) {
+              await _playPiece(_playingPiece ?? 0);
+            } else {
+              await c.play();
+              if (mounted) setState(() {});
+            }
+          },
+          icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+        ),
+        const SizedBox(width: 4),
+        IconButton.filledTonal(
+          tooltip: 'Stop',
+          onPressed: ready ? _stopPlayback : null,
+          icon: const Icon(Icons.stop_rounded),
+        ),
+      ]),
+    );
+  }
 
   Widget _preview() {
     final c = _vc;
