@@ -130,7 +130,11 @@ SrtParseResult parseSrt(String raw) {
 
     final bodyStart = timeAt + 1;
     var bodyEnd = bodyStart;
-    while (bodyEnd < lines.length && !_startsCue(lines, bodyEnd)) {
+    // A blank line is the standard SRT cue separator. Also recover when a
+    // following cue starts immediately without that separator.
+    while (bodyEnd < lines.length &&
+        lines[bodyEnd].trim().isNotEmpty &&
+        !_startsCue(lines, bodyEnd)) {
       bodyEnd++;
     }
     final body = lines.sublist(bodyStart, bodyEnd).join('\n').trimRight();
