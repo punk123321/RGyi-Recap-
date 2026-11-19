@@ -88,7 +88,7 @@ SrtParseResult parseSrt(String raw) {
   final text = _normalize(raw).trim();
   if (text.isEmpty) return const SrtParseResult([], 0, 0);
 
-  final lines = text.split('\\n');
+  final lines = text.split('\n');
   final out = <SrtEntry>[];
   var bad = 0;
   var noIndex = 0;
@@ -133,7 +133,7 @@ SrtParseResult parseSrt(String raw) {
     while (bodyEnd < lines.length && !_startsCue(lines, bodyEnd)) {
       bodyEnd++;
     }
-    final body = lines.sublist(bodyStart, bodyEnd).join('\\n').trimRight();
+    final body = lines.sublist(bodyStart, bodyEnd).join('\n').trimRight();
     out.add(SrtEntry(
       index,
       _ms(match.group(1)!, match.group(2)!, match.group(3)!, match.group(4)!),
