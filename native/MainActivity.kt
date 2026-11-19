@@ -743,7 +743,61 @@ class MainActivity : FlutterActivity() {
             }
             buf.toByteArray()
         }
-        return hashMapOf("name" to name, "text" to String(bytes, Charsets.UTF_8))
+        return hashMapOf("name" to name, "text" to decodeTextFile(bytes))
+    }
+
+    /**
+     * Subtitle files are not always UTF-8. Handle the common Unicode BOMs,
+     * detect BOM-less UTF-16, then try strict UTF-8 followed by GB18030
+     * (commonly used by Chinese subtitle downloads). Never silently replace
+     * undecodable bytes with the Unicode replacement character.
+     */
+    private fun decodeTextFile(bytes: ByteArray): String {
+        if (bytes.isEmpty()) return ""
+
+        fun decode(charset: java.nio.charset.Charset, offset: Int = 0): String {
+            val decoder = charset.newDecoder()
+                .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+            return decoder.decode(java.nio.ByteBuffer.wrap(bytes, offset, bytes.size - offset)).toString()
+        }
+
+        // UTF-8 BOM
+        if (bytes.size >= 3 &&
+            bytes[0] == 0xEF.toByte() && bytes[1] == 0xBB.toByte() && bytes[2] == 0xBF.toByte()
+        ) return decode(Charsets.UTF_8, 3)
+
+        // UTF-16 little-endian / big-endian BOM
+        if (bytes.size >= 2 && bytes[0] == 0xFF.toByte() && bytes[1] == 0xFE.toByte()) {
+            return decode(Charsets.UTF_16LE, 2)
+        }
+        if (bytes.size >= 2 && bytes[0] == 0xFE.toByte() && bytes[1] == 0xFF.toByte()) {
+            return decode(Charsets.UTF_16BE, 2)
+        }
+
+        // BOM-less UTF-16 can be recognized by its regular zero-byte pattern.
+        if (bytes.size >= 4) {
+            val sample = minOf(bytes.size, 128)
+            var evenZeros = 0
+            var oddZeros = 0
+            for (i in 0 until sample) {
+                if (bytes[i] == 0.toByte()) {
+                    if (i % 2 == 0) evenZeros++ else oddZeros++
+                }
+            }
+            if (oddZeros > sample / 4 && evenZeros == 0) return decode(Charsets.UTF_16LE)
+            if (evenZeros > sample / 4 && oddZeros == 0) return decode(Charsets.UTF_16BE)
+        }
+
+        return try {
+            decode(Charsets.UTF_8)
+        } catch (_: java.nio.charset.CharacterCodingException) {
+            try {
+                decode(java.nio.charset.Charset.forName("GB18030"))
+            } catch (_: java.nio.charset.CharacterCodingException) {
+                throw IllegalStateException("စာတန်းဖိုင် encoding ကို မဖတ်နိုင်ပါ။ UTF-8, UTF-16 သို့မဟုတ် GB18030 အဖြစ် ပြောင်းပြီး ပြန်ထည့်ပါ။")
+            }
+        }
     }
 
     private fun readVideoInfo(uri: Uri): HashMap<String, Any?> {
