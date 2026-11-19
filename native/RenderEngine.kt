@@ -85,6 +85,9 @@ class RenderEngine(private val activity: Activity, private val channel: MethodCh
     private val main = Handler(Looper.getMainLooper())
     private val worker = Executors.newSingleThreadExecutor()
     private var transformer: Transformer? = null
+    // Identifies one render so a late callback from a cancelled job cannot
+    // overwrite the state of a newer render.
+    private var jobGeneration = 0L
     private var partFile: File? = null
     private var finalFile: File? = null
     private var polling = false
@@ -181,6 +184,8 @@ class RenderEngine(private val activity: Activity, private val channel: MethodCh
             return
         }
         try {
+            jobGeneration += 1L
+            val thisJob = jobGeneration
             val job = JSONObject(jobJson)
             val dir = rendersDir
             dir.listFiles()?.forEach { if (it.name.endsWith(".part.mp4")) it.delete() }
@@ -217,7 +222,7 @@ class RenderEngine(private val activity: Activity, private val channel: MethodCh
                 )
                 .addListener(object : Transformer.Listener {
                     override fun onCompleted(composition: Composition, exportResult: ExportResult) {
-                        finish(true, exportResult.durationMs, height, null)
+                        finish(thisJob, true, exportResult.durationMs, height, null)
                     }
 
                     override fun onError(
@@ -225,7 +230,7 @@ class RenderEngine(private val activity: Activity, private val channel: MethodCh
                         exportResult: ExportResult,
                         exportException: ExportException
                     ) {
-                        finish(false, 0L, height, describeError(exportException))
+                        finish(thisJob, false, 0L, height, describeError(exportException))
                     }
                 })
                 .build()
@@ -921,8 +926,11 @@ class RenderEngine(private val activity: Activity, private val channel: MethodCh
         main.postDelayed(tick, 500)
     }
 
-    private fun finish(ok: Boolean, durationMs: Long, height: Int, error: String?) {
+    private fun finish(job: Long, ok: Boolean, durationMs: Long, height: Int, error: String?) {
         main.post {
+            // Ignore completion/error callbacks delivered after cancellation or
+            // after a later render has already started.
+            if (job != jobGeneration) return@post
             val part = partFile
             val fin = finalFile
             transformer = null
@@ -944,6 +952,9 @@ class RenderEngine(private val activity: Activity, private val channel: MethodCh
 
     fun cancel() {
         val t = transformer ?: return
+        // Invalidate the listener callback before asking Media3 to cancel.
+        jobGeneration += 1L
+        transformer = null
         t.cancel()
         transformer = null
         polling = false
