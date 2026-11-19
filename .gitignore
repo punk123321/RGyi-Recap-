@@ -6,3 +6,9 @@ build/
 *.iml
 .idea/
 local.properties
+
+# Android release signing material (never commit these files)
+*.jks
+*.keystore
+key.properties
+android/key.properties
