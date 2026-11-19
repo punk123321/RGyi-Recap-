@@ -239,6 +239,11 @@ class MainActivity : FlutterActivity() {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/octet-stream"
             putExtra(Intent.EXTRA_TITLE, name)
+            addFlags(
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            )
         }
         launch(saveTextCode, intent)
     }
@@ -387,6 +392,10 @@ class MainActivity : FlutterActivity() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/*"
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            )
         }
         launch(pickImageCode, intent)
     }
@@ -417,6 +426,11 @@ class MainActivity : FlutterActivity() {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = mime
             putExtra(Intent.EXTRA_TITLE, name)
+            addFlags(
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            )
         }
         launch(exportFileCode, intent)
     }
