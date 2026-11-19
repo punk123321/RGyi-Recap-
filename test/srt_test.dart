@@ -49,7 +49,7 @@ void main() {
     });
 
     test('parses consecutive cues even when blank separator lines are missing', () {
-      const raw = '1\\n00:00:01,000 --> 00:00:02,000\\n你好\\n2\\n00:00:02,000 --> 00:00:03,000\\nမင်္ဂလာပါ';
+      const raw = '1\n00:00:01,000 --> 00:00:02,000\n你好\n2\n00:00:02,000 --> 00:00:03,000\nမင်္ဂလာပါ';
       final r = parseSrt(raw);
       expect(r.entries.length, 2);
       expect(r.entries[0].text, '你好');
@@ -58,7 +58,7 @@ void main() {
     });
 
     test('recovers valid cues after a malformed preamble', () {
-      const raw = 'Subtitle export\\nnot a cue\\n\\n1\\n00:00:01,000 --> 00:00:02,000\\nHello';
+      const raw = 'Subtitle export\nnot a cue\n\n1\n00:00:01,000 --> 00:00:02,000\nHello';
       final r = parseSrt(raw);
       expect(r.entries.length, 1);
       expect(r.entries.single.text, 'Hello');
