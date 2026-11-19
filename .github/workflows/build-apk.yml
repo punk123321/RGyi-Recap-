@@ -97,6 +97,11 @@ jobs:
       - run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - run: flutter test
 
+      # Compile the generated Android app and native Kotlin/Media3 code on every CI run.
+      # This creates a debug APK only inside the temporary runner; nothing is uploaded.
+      - name: Validate Android debug build (no artifact upload)
+        run: flutter build apk --debug --no-pub
+
       # Decode the private keystore only on the ephemeral GitHub runner.
       # All credentials are supplied through GitHub Actions Secrets.
       - name: Configure private release keystore
