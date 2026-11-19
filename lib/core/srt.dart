@@ -73,47 +73,76 @@ String _normalize(String raw) {
 /// Reads SRT text. Accepts "," or "." before the milliseconds, Windows line
 /// endings and a leading BOM. Blocks without a timestamp are counted in
 /// [SrtParseResult.badBlocks] and left out.
+bool _startsCue(List<String> lines, int at) {
+  if (at < 0 || at >= lines.length) return false;
+  if (_timeLine.hasMatch(lines[at])) return true;
+  return int.tryParse(lines[at].trim()) != null &&
+      at + 1 < lines.length &&
+      _timeLine.hasMatch(lines[at + 1]);
+}
+
+/// Reads SRT text. Accepts comma/dot milliseconds, Windows/Unix line endings,
+/// a leading BOM, missing cue numbers, and files that omit blank lines between
+/// cues. Text and timestamps are preserved exactly after normalization.
 SrtParseResult parseSrt(String raw) {
   final text = _normalize(raw).trim();
   if (text.isEmpty) return const SrtParseResult([], 0, 0);
-  final blocks = text.split(RegExp(r'\n[ \t]*\n+'));
+
+  final lines = text.split('\\n');
   final out = <SrtEntry>[];
   var bad = 0;
   var noIndex = 0;
   var last = 0;
-  for (final block in blocks) {
-    final lines = block.split('\n');
-    var i = 0;
+  var i = 0;
+
+  while (i < lines.length) {
     while (i < lines.length && lines[i].trim().isEmpty) {
       i++;
     }
-    if (i >= lines.length) continue;
+    if (i >= lines.length) break;
+
     int? index;
     var timeAt = i;
-    final first = lines[i].trim();
-    final asInt = int.tryParse(first);
-    if (asInt != null && i + 1 < lines.length) {
-      index = asInt;
+    final possibleIndex = int.tryParse(lines[i].trim());
+    if (possibleIndex != null &&
+        i + 1 < lines.length &&
+        _timeLine.hasMatch(lines[i + 1])) {
+      index = possibleIndex;
       timeAt = i + 1;
     }
-    final m = _timeLine.firstMatch(lines[timeAt]);
-    if (m == null) {
+
+    final match = _timeLine.firstMatch(lines[timeAt]);
+    if (match == null) {
+      // Count one malformed block, then recover at the next valid cue start.
       bad++;
+      i++;
+      while (i < lines.length && !_startsCue(lines, i)) {
+        i++;
+      }
       continue;
     }
+
     if (index == null) {
       noIndex++;
       index = last + 1;
     }
     last = index;
-    final body = lines.sublist(timeAt + 1).join('\n').trimRight();
+
+    final bodyStart = timeAt + 1;
+    var bodyEnd = bodyStart;
+    while (bodyEnd < lines.length && !_startsCue(lines, bodyEnd)) {
+      bodyEnd++;
+    }
+    final body = lines.sublist(bodyStart, bodyEnd).join('\\n').trimRight();
     out.add(SrtEntry(
       index,
-      _ms(m.group(1)!, m.group(2)!, m.group(3)!, m.group(4)!),
-      _ms(m.group(5)!, m.group(6)!, m.group(7)!, m.group(8)!),
+      _ms(match.group(1)!, match.group(2)!, match.group(3)!, match.group(4)!),
+      _ms(match.group(5)!, match.group(6)!, match.group(7)!, match.group(8)!),
       body,
     ));
+    i = bodyEnd;
   }
+
   return SrtParseResult(out, bad, noIndex);
 }
 
