@@ -224,6 +224,10 @@ class MainActivity : FlutterActivity() {
                 Intent.EXTRA_MIME_TYPES,
                 arrayOf("*/*", "text/plain", "text/*", "application/json", "application/x-subrip", "application/octet-stream")
             )
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            )
         }
         launch(pickTextCode, intent)
     }
@@ -270,6 +274,7 @@ class MainActivity : FlutterActivity() {
                     result.success(null)
                     return
                 }
+                keepAccess(uri)
                 worker.execute {
                     try {
                         val info = readTextFile(uri)
